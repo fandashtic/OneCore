@@ -1468,7 +1468,7 @@ GO
 -- Description: Create new stored procedure to get live meeting license details by meeting id
 -- Return live license details list
 -- ==============================================================================================
---Exec GET_Live_Meeting_LicenseDetails_By_MeetingId 1
+--Exec GET_Live_Meeting_LicenseDetails_By_MeetingId 1,0
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'GET_Live_Meeting_LicenseDetails_By_MeetingId')
 BEGIN
     DROP PROC GET_Live_Meeting_LicenseDetails_By_MeetingId
@@ -1493,7 +1493,7 @@ BEGIN
 	END
 	ELSE
 	BEGIN
-		SET @MeetingRole = 0
+		SET @MeetingRole = 1
 		SET @MeetingUserId = (SELECT TOP 1 L.MeetingHostUserId FROM Live_Meetings L WITH (NOLOCK) WHERE L.SysMeetingId = @SysMeetingId)
 	END
 
@@ -1506,12 +1506,17 @@ BEGIN
 		ML.LiveUserName,
 		ML.LiveMeetingId,
 		ML.LiveMeetingPassword,
+		T.CallDuration,
+		'http://localhost:4200/#/center/live/meetings' [LeaveUrl],
 		@DisplayNameFirstName DisplayNameFirstName,
 		@DisplayNameLastName DisplayNameLastName,
-		@MeetingRole MeetingRole
+		@MeetingRole MeetingRole,
+		T.SysMeetingTypeId,
+		M.IsRecordSession
 	FROM Live_Meetings M WITH (NOLOCK)
 	JOIN Live_Meeting_License ML WITH (NOLOCK) ON ML.SysLiveMeetingLicenseId = M.SysLiveMeetingLicenseId 
 	JOIN Live_License L WITH (NOLOCK) ON L.SysLiveLicenseId = M.SysLiveLicenseId
+	JOIN Live_Meeting_Type T WITH (NOLOCK) ON T.SysMeetingTypeId = M.MeetingTypeId
 	WHERE M.SysMeetingId = @SysMeetingId
 
 END
@@ -1622,6 +1627,7 @@ GO
 -- Description: Create new stored procedure to get meetings list by company and center
 -- Return meetings list
 -- ==============================================================================================
+--Exec GET_Meetings_By_Company_Center 1046, 1, 1
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'GET_Meetings_By_Company_Center')
 BEGIN
     DROP PROC GET_Meetings_By_Company_Center
@@ -1805,14 +1811,27 @@ Create PROC GET_Live_Meeting_Participants_Company_Center
 )
 AS
 BEGIN
-
 	SELECT	DISTINCT TOP 2
 		S.userId [Parent_Id], 
 		U.FirstName [Parent_FirstName],
 		U.LastName [Parent_LastName],
+
 		F.Family_Id,
 		F.FIRST_NAME [Family_FirstName],
-		F.LAST_NAME [Family_LastName],						
+		F.LAST_NAME [Family_LastName],	
+		
+		F.Family_Account_No,	
+		F.Family_Status,
+		F.parent2_first_name,	
+		F.parent2_last_name,
+		'' Parent1Name,	
+		'' Parent2Name,	
+		F.PARENT1_CELL_PHONE,	
+		F.HOME_PHONE,	
+		F.PARENT2_CELL_PHONE,	
+		F.HOME_PHONE2,	
+		F.ledger_type,
+
 		C.Child_Id [Child_Id],		
 		C.FIRST_NAME [Child_FirstName],
 		C.LAST_NAME [Child_LastName]
@@ -1847,7 +1866,7 @@ Create PROCEDURE GET_Meetings_List_For_Parent
  @Company_Id INT,  
  @Center_Id INT = NULL,  
  @MeetingsStatus TINYINT = 1 ,
- @parentId int
+ @ParentId int
 )  
 AS  
 BEGIN  
@@ -1895,7 +1914,7 @@ BEGIN
 	JOIN Center_Details CE WITH (NOLOCK) ON CE.Company_Id = M.Company_Id AND CE.Center_ID = M.Center_Id
 	JOIN timezone T WITH (NOLOCK) ON T.timezone_id = M.TimeZoneId
 	JOIN Live_Meeting_Type L WITH (NOLOCK) ON L.SysMeetingTypeId = M.MeetingTypeId
-	WHERE LMP.MeetingParticipantUserId =  @parentId 
+	WHERE LMP.MeetingParticipantUserId =  @ParentId 
 END
 GO
 
@@ -2042,5 +2061,6 @@ Select * from App_Live_Meeting_Type
 select * from Live_Meeting_Type
 select * from Live_License
 select * from Live_Meeting_License
-
+Select * from Live_Meetings
+select * from Live_Meeting_Participants
 */
