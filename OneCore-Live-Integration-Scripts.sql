@@ -390,7 +390,7 @@ BEGIN
 		SELECT DISTINCT CAST(D.MeetingParticipantUserId AS VARCHAR) + ':' + CAST(D.Family_Id AS VARCHAR) + ':' + CAST(D.Child_Id AS VARCHAR)
 		FROM Live_Meeting_Participants D WITH (NOLOCK) 
 		WHERE D.SysMeetingId = @SysMeetingId AND
-		D.MeetingParticipantStatus = 1
+		D.MeetingParticipantStatus IN (1, 2)
 
 		Declare @Id AS INT
 		SET @Id = 1
@@ -951,9 +951,14 @@ BEGIN
 		FROM Live_Meetings L WITH (NOLOCK)
 		WHERE L.SysMeetingId = @SysMeetingId
 		
-		-- Delete Meeting Participants
+		-- Update Meeting Participants Status
 
-		Delete D FROM Live_Meeting_Participants D WITH (NOLOCK) WHERE D.SysMeetingId = @SysMeetingId
+		UPDATE D 
+		SET D.MeetingParticipantStatus = @MeetingsStatus,
+			D.ModifiedBy = @UserId,
+			D.ModifiedDttm = @TransactionDttm
+		FROM Live_Meeting_Participants D WITH (NOLOCK) 
+		WHERE D.SysMeetingId = @SysMeetingId
 
 	END
 END
@@ -1507,7 +1512,7 @@ BEGIN
 		ML.LiveMeetingId,
 		ML.LiveMeetingPassword,
 		T.CallDuration,
-		'http://localhost:4200/#/center/live/meetings' [LeaveUrl],
+		'http://localhost:4200/#/center/live/close' [LeaveUrl],
 		@DisplayNameFirstName DisplayNameFirstName,
 		@DisplayNameLastName DisplayNameLastName,
 		@MeetingRole MeetingRole,
@@ -1627,7 +1632,7 @@ GO
 -- Description: Create new stored procedure to get meetings list by company and center
 -- Return meetings list
 -- ==============================================================================================
---Exec GET_Meetings_By_Company_Center 1046, 1, 1
+--Exec GET_Meetings_By_Company_Center 1046, 1, 2
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'GET_Meetings_By_Company_Center')
 BEGIN
     DROP PROC GET_Meetings_By_Company_Center
@@ -1811,7 +1816,7 @@ Create PROC GET_Live_Meeting_Participants_Company_Center
 )
 AS
 BEGIN
-	SELECT	DISTINCT TOP 2
+	SELECT	DISTINCT
 		S.userId [Parent_Id], 
 		U.FirstName [Parent_FirstName],
 		U.LastName [Parent_LastName],
@@ -1831,6 +1836,8 @@ BEGIN
 		F.PARENT2_CELL_PHONE,	
 		F.HOME_PHONE2,	
 		F.ledger_type,
+		PRIMARY_EMAIL, 
+		SECONDARY_EMAIL,
 
 		C.Child_Id [Child_Id],		
 		C.FIRST_NAME [Child_FirstName],
@@ -1918,22 +1925,45 @@ BEGIN
 END
 GO
 
+IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 80)
+BEGIN
+	INSERT INTO app_config (AppConfigId, Value , Description) values (80, 'http://localhost:4200/#/center/live/close', 'Meeting Leave Url')
+END
+GO
+IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 80)
+BEGIN
+	INSERT INTO app_config_beta (AppConfigId, Value , Description) values (80, 'http://localhost:4200/#/center/live/close', 'Meeting Leave Url')
+END
+GO
 
-
+IF EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Live_Meeting_Hosts_Company_Center')
+BEGIN
+	DELETE FROM Pii_Elements WHERE ElementName = 'GET_Live_Meeting_Hosts_Company_Center'
+END
+GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Live_Meeting_Hosts_Company_Center')
 BEGIN
 	INSERT INTO Pii_Elements (ElementName, Parameters)
 	SELECT 'GET_Live_Meeting_Hosts_Company_Center', '{"InputColumnNames":null,"OutputParamaters":   [{"TableIndex":0,"OutputColumnNames":["FirstName" ,"LastName"]}]}'
 END
 GO
-
+IF EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Live_Meeting_Participants_Company_Center')
+BEGIN
+	DELETE FROM Pii_Elements WHERE ElementName = 'GET_Live_Meeting_Participants_Company_Center'
+END
+GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Live_Meeting_Participants_Company_Center')
 BEGIN
 	INSERT INTO Pii_Elements (ElementName, Parameters)
-	SELECT 'GET_Live_Meeting_Participants_Company_Center', '{"InputColumnNames":null,"OutputParamaters":   [{"TableIndex":0,"OutputColumnNames":["Parent_FirstName", "Parent_LastName", "Family_FirstName", "Family_LastName", "Child_FirstName", "Child_LastName"]}]}'
+	SELECT 'GET_Live_Meeting_Participants_Company_Center', '{"InputColumnNames":null,"OutputParamaters":   [{"TableIndex":0,"OutputColumnNames":["Parent_FirstName", "Parent_LastName", "Family_FirstName", "Family_LastName", "Family_Account_No", "parent2_first_name", "parent2_last_name", "PARENT1_CELL_PHONE", "HOME_PHONE", "PARENT2_CELL_PHONE", "HOME_PHONE2", "Child_FirstName", "Child_LastName", "PRIMARY_EMAIL", "SECONDARY_EMAIL"]}]}'
 END
 GO
 
+IF EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Meetings_By_Company_Center')
+BEGIN
+	DELETE FROM Pii_Elements WHERE ElementName = 'GET_Meetings_By_Company_Center'
+END
+GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Meetings_By_Company_Center')
 BEGIN
 	INSERT INTO Pii_Elements (ElementName, Parameters)
@@ -1941,6 +1971,11 @@ BEGIN
 END
 GO
 
+IF EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Meeting_By_Id')
+BEGIN
+	DELETE FROM Pii_Elements WHERE ElementName = 'GET_Meeting_By_Id'
+END
+GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Meeting_By_Id')
 BEGIN
 	INSERT INTO Pii_Elements (ElementName, Parameters)
@@ -1948,6 +1983,11 @@ BEGIN
 END
 GO
 
+IF EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Meetings_List_For_Parent')
+BEGIN
+	DELETE FROM Pii_Elements WHERE ElementName = 'GET_Meetings_List_For_Parent'
+END
+GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Meetings_List_For_Parent')
 BEGIN
 	INSERT INTO Pii_Elements (ElementName, Parameters)
@@ -1955,6 +1995,11 @@ BEGIN
 END
 GO
 
+IF EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Live_Meeting_LicenseDetails_By_MeetingId')
+BEGIN
+	DELETE FROM Pii_Elements WHERE ElementName = 'GET_Live_Meeting_LicenseDetails_By_MeetingId'
+END
+GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Live_Meeting_LicenseDetails_By_MeetingId')
 BEGIN
 	INSERT INTO Pii_Elements (ElementName, Parameters)
