@@ -305,29 +305,42 @@ BEGIN
     DROP FUNCTION dbo.IsMeetingParticipantsTimeOverLap
 END
 GO
-Create FUNCTION dbo.IsMeetingParticipantsTimeOverLap(@Participants NVARCHAR(1000), @MeetingStartTime DATETIME, @MeetingEndTime DATETIME, @SysMeetingId INT)  
+Create FUNCTION dbo.IsMeetingParticipantsTimeOverLap(@ParentIds NVARCHAR(1000), @FamilyIds NVARCHAR(1000), @ChildIds NVARCHAR(1000), @MeetingStartTime DATETIME, @MeetingEndTime DATETIME, @SysMeetingId INT)  
 Returns BIT
 AS  
 BEGIN 
 	DECLARE @IsMeetingParticipantsTimeOverLap BIT;
-	DECLARE @Participant INT;
+	DECLARE @ParentId INT;
+	DECLARE @FamilyId INT;
+	DECLARE @ChildId INT;
 	DECLARE @Id INT;
 	DECLARE @P_Id INT;
 	SET @IsMeetingParticipantsTimeOverLap = 0;
 	SET @Id = 1;
 	SET @P_Id = 1;
 
-	DECLARE @TempParticipants AS TABLE(Id INT IDENTITY(1,1), Participant INT)
-	INSERT INTO @TempParticipants(Participant)
-	SELECT DISTINCT ItemValue FROM dbo.SplitIn2Rows_Int(@Participants, ',')
+	DECLARE @TempParents AS TABLE(Id INT IDENTITY(1,1), ParentId INT)
+	INSERT INTO @TempParents(ParentId)
+	SELECT ItemValue FROM dbo.SplitIn2Rows_Int(@ParentIds, ',')
 
-	WHILE(@Id <= (SELECT MAX(Id) FROM @TempParticipants))
+	DECLARE @TempFamily AS TABLE(Id INT IDENTITY(1,1), FamilyId INT)
+	INSERT INTO @TempFamily(FamilyId)
+	SELECT ItemValue FROM dbo.SplitIn2Rows_Int(@FamilyIds, ',')
+
+	DECLARE @TempChilds AS TABLE(Id INT IDENTITY(1,1), ChildId INT)
+	INSERT INTO @TempChilds(ChildId)
+	SELECT ItemValue FROM dbo.SplitIn2Rows_Int(@ChildIds, ',')
+
+	WHILE(@Id <= (SELECT MAX(Id) FROM @TempParents))
 	BEGIN
-		SELECT @Participant = Participant FROM @TempParticipants WHERE Id = @Id;
+		SELECT @ParentId = ParentId FROM @TempParents WHERE Id = @Id;
+		SELECT @FamilyId = FamilyId FROM @TempFamily WHERE Id = @Id;
+		SELECT @ChildId = ChildId FROM @TempChilds WHERE Id = @Id;
 
 		DECLARE @TempParticipant_Meetings AS TABLE(P_Id INT IDENTITY(1,1), SysMeetingId INT)
 		INSERT INTO @TempParticipant_Meetings(SysMeetingId)
-		SELECT DISTINCT SysMeetingId FROM Live_Meeting_Participants WITH (NOLOCK) WHERE MeetingParticipantUserId = @Participant AND MeetingParticipantStatus = 1
+		SELECT DISTINCT SysMeetingId FROM Live_Meeting_Participants L WITH (NOLOCK) 
+		WHERE L.MeetingParticipantUserId = @ParentId AND L.Family_Id = @FamilyId AND L.Child_Id = @ChildId  AND MeetingParticipantStatus = 1
 
 		SET @P_Id = 1;
 
@@ -694,7 +707,7 @@ BEGIN
 		END
 		ELSE
 		BEGIN
-			IF NOT EXISTS(SELECT TOP 1 1 FROM Live_Meeting_Participants L WITH (NOLOCK) WHERE L.SysMeetingId = @SysMeetingId AND L.MeetingParticipantUserId = @MeetingParticipantUserId)
+			IF NOT EXISTS(SELECT TOP 1 1 FROM Live_Meeting_Participants L WITH (NOLOCK) WHERE L.SysMeetingId = @SysMeetingId AND L.MeetingParticipantUserId = @MeetingParticipantUserId AND L.Family_Id = @Family_Id AND L.Child_Id = @Child_Id)
 			BEGIN
 				INSERT INTO Live_Meeting_Participants
 				(
@@ -772,10 +785,10 @@ BEGIN
 	SET @Error = '';	
 	
 	-- Is meeting host user time overlap
-	SET @IsMeetingHostUserTimeOverLap = dbo.IsMeetingHostUserTimeOverLap(@MeetingHostUserId, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
+	--SET @IsMeetingHostUserTimeOverLap = dbo.IsMeetingHostUserTimeOverLap(@MeetingHostUserId, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
 
 	-- Is any meeting participants time Overlap
-	SET @IsMeetingParticipantsTimeOverLap = dbo.IsMeetingParticipantsTimeOverLap(@ParentIds, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
+	--SET @IsMeetingParticipantsTimeOverLap = dbo.IsMeetingParticipantsTimeOverLap(@ParentIds, @FamilyIds, @ChildIds, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
 	
 	IF(@IsMeetingHostUserTimeOverLap = 0 AND @IsMeetingParticipantsTimeOverLap = 0)
 	BEGIN
@@ -886,15 +899,15 @@ BEGIN
 
 				DECLARE @TempParentIds AS TABLE(Id INT IDENTITY(1,1), ParentId INT)
 				INSERT INTO @TempParentIds(ParentId)
-				SELECT DISTINCT ItemValue FROM dbo.SplitIn2Rows_Int(@ParentIds, ',')
+				SELECT ItemValue FROM dbo.SplitIn2Rows_Int(@ParentIds, ',')
 
 				DECLARE @TempFamilyIds AS TABLE(Id INT IDENTITY(1,1), FamilyId INT)
 				INSERT INTO @TempFamilyIds(FamilyId)
-				SELECT DISTINCT ItemValue FROM dbo.SplitIn2Rows_Int(@FamilyIds, ',')
+				SELECT ItemValue FROM dbo.SplitIn2Rows_Int(@FamilyIds, ',')
 
 				DECLARE @TempChildIds AS TABLE(Id INT IDENTITY(1,1), ChildId INT)
 				INSERT INTO @TempChildIds(ChildId)
-				SELECT DISTINCT ItemValue FROM dbo.SplitIn2Rows_Int(@ChildIds, ',')
+				SELECT ItemValue FROM dbo.SplitIn2Rows_Int(@ChildIds, ',')
 				
 				WHILE(@P_Id <= (SELECT MAX(Id) FROM @TempParentIds))
 				BEGIN
@@ -978,6 +991,8 @@ GO
 Create PROC UPDATE_Live_Meeting_Participant_Status
 (
 	@SysParticipantId INT = 0,
+	@FamilyId INT = 0,
+	@ChildId INT = 0,
 	@MeetingParticipantStatus TINYINT,
 	@UserId INT,
 	@TransactionDttm DATETIME
@@ -992,7 +1007,10 @@ BEGIN
 			L.ModifiedBy = @UserId,
 			L.ModifiedDttm = @TransactionDttm
 		FROM Live_Meeting_Participants L WITH (NOLOCK)
-			WHERE L.SysParticipantId = @SysParticipantId		
+			WHERE L.SysParticipantId = @SysParticipantId AND
+			L.Family_Id = @FamilyId AND
+			L.Child_Id = @ChildId
+
 	END
 END
 GO
@@ -1817,7 +1835,7 @@ Create PROC GET_Live_Meeting_Participants_Company_Center
 AS
 BEGIN
 	SELECT	DISTINCT
-		S.userId [Parent_Id], 
+		S.sponsor_id [Parent_Id], 
 		U.FirstName [Parent_FirstName],
 		U.LastName [Parent_LastName],
 
@@ -1852,6 +1870,7 @@ BEGIN
 	S.userId > 0 AND	
 	(F.Center_Id = @Center_Id  OR F.Center_Id = 1) AND
 	(S.Center_Id = @Center_Id  OR S.Center_Id = 1)
+	ORDER BY F.Family_Account_No ASC
 
 END
 GO
