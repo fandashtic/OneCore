@@ -547,11 +547,11 @@ END
 GO
 Create PROC GET_IsMeetingParticipantsTimeOverLap
 (
-	@Participants NVARCHAR(1000), @MeetingStartTime DATETIME, @MeetingEndTime DATETIME, @SysMeetingId INT
+	@ParentIds NVARCHAR(1000), @FamilyIds NVARCHAR(1000), @ChildIds NVARCHAR(1000), @MeetingStartTime DATETIME, @MeetingEndTime DATETIME, @SysMeetingId INT
 )
 AS
 BEGIN
-	SELECT dbo.IsMeetingParticipantsTimeOverLap(@Participants, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
+	SELECT dbo.IsMeetingParticipantsTimeOverLap(@ParentIds, @FamilyIds, @ChildIds, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
 END
 GO
 
