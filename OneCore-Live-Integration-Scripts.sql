@@ -1955,6 +1955,17 @@ BEGIN
 END
 GO
 
+IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 81)
+BEGIN
+	INSERT INTO app_config (AppConfigId, Value , Description) values (81, 'http://localhost:4255/#/live/close', 'Meeting Leave PP Url')
+END
+GO
+IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 81)
+BEGIN
+	INSERT INTO app_config_beta (AppConfigId, Value , Description) values (81, 'http://localhost:4255/#/live/close', 'Meeting Leave PP Url')
+END
+GO
+
 IF EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Live_Meeting_Hosts_Company_Center')
 BEGIN
 	DELETE FROM Pii_Elements WHERE ElementName = 'GET_Live_Meeting_Hosts_Company_Center'
