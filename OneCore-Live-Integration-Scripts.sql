@@ -443,10 +443,14 @@ AS
 BEGIN 
 	DECLARE @ParticipantsCount INT
 	SET @ParticipantsCount = 0;
+	Declare @CountTable As Table(ComboId VARCHAR(255))
+	INSERT INTO @CountTable(ComboId)
+	SELECT DISTINCT CAST(Family_Id AS VARCHAR) + CAST(Child_Id AS VARCHAR) + CAST(MeetingParticipantUserId AS VARCHAR)
+	FROM Live_Meeting_Participants D WITH (NOLOCK) WHERE D.SysMeetingId = @SysMeetingId
 
 	IF EXISTS (SELECT TOP 1 1 FROM Live_Meeting_Participants D WITH (NOLOCK) WHERE D.SysMeetingId = @SysMeetingId)
 	BEGIN
-		SET @ParticipantsCount = (SELECT COUNT(DISTINCT MeetingParticipantUserId) FROM Live_Meeting_Participants D WITH (NOLOCK) WHERE D.SysMeetingId = @SysMeetingId)
+		SET @ParticipantsCount = (SELECT COUNT(DISTINCT ComboId) FROM @CountTable)
 	END
 
 	RETURN @ParticipantsCount;
@@ -766,7 +770,7 @@ Create PROC SAVE_Live_Meeting
 	@IsSendReminderHost BIT,
 	@IsSendReminderParticipants BIT,
 	@IsRecordSession  BIT,
-	@MeetingsStatus TINYINT,
+	@MeetingStatus TINYINT,
 	@UserId INT,
 	@TransactionDttm DATETIME,
 	@SysMeetingId INT = 0
@@ -837,7 +841,7 @@ BEGIN
 					L.IsSendReminderHost = @IsSendReminderHost,
 					L.IsSendReminderParticipants = @IsSendReminderParticipants,
 					L.IsRecordSession = @IsRecordSession,
-					L.MeetingsStatus = @MeetingsStatus,
+					L.MeetingsStatus = @MeetingStatus,
 					L.ModifiedBy = @UserId,
 					L.ModifiedDttm = @TransactionDttm
 				FROM Live_Meetings L WITH (NOLOCK)
@@ -878,7 +882,7 @@ BEGIN
 					@IsSendReminderHost,
 					@IsSendReminderParticipants,
 					@IsRecordSession,
-					@MeetingsStatus,
+					@MeetingStatus,
 					@UserId,
 					@TransactionDttm
 
@@ -895,7 +899,7 @@ BEGIN
 				DECLARE @Child_Id AS INT
 
 				SET @P_Id = 1;
-				SET @MeetingParticipantStatus = @MeetingsStatus;
+				SET @MeetingParticipantStatus = @MeetingStatus;
 
 				DECLARE @TempParentIds AS TABLE(Id INT IDENTITY(1,1), ParentId INT)
 				INSERT INTO @TempParentIds(ParentId)
@@ -948,7 +952,7 @@ GO
 Create PROC UPDATE_Live_Meeting_Status
 (
 	@SysMeetingId INT = 0, 
-	@MeetingsStatus TINYINT,
+	@MeetingStatus TINYINT,
 	@UserId INT,
 	@TransactionDttm DATETIME
 )
@@ -958,7 +962,7 @@ BEGIN
 	BEGIN
 		UPDATE L
 		SET 
-			L.MeetingsStatus = @MeetingsStatus,
+			L.MeetingsStatus = @MeetingStatus,
 			L.ModifiedBy = @UserId,
 			L.ModifiedDttm = @TransactionDttm
 		FROM Live_Meetings L WITH (NOLOCK)
@@ -967,7 +971,7 @@ BEGIN
 		-- Update Meeting Participants Status
 
 		UPDATE D 
-		SET D.MeetingParticipantStatus = @MeetingsStatus,
+		SET D.MeetingParticipantStatus = @MeetingStatus,
 			D.ModifiedBy = @UserId,
 			D.ModifiedDttm = @TransactionDttm
 		FROM Live_Meeting_Participants D WITH (NOLOCK) 
@@ -1491,7 +1495,7 @@ GO
 -- Description: Create new stored procedure to get live meeting license details by meeting id
 -- Return live license details list
 -- ==============================================================================================
---Exec GET_Live_Meeting_LicenseDetails_By_MeetingId 1,0
+--Exec GET_Live_Meeting_LicenseDetails_By_MeetingId 9,0
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'GET_Live_Meeting_LicenseDetails_By_MeetingId')
 BEGIN
     DROP PROC GET_Live_Meeting_LicenseDetails_By_MeetingId
@@ -1530,7 +1534,7 @@ BEGIN
 		ML.LiveMeetingId,
 		ML.LiveMeetingPassword,
 		T.CallDuration,
-		'http://localhost:4200/#/center/live/close' [LeaveUrl],
+		'' [LeaveUrl],
 		@DisplayNameFirstName DisplayNameFirstName,
 		@DisplayNameLastName DisplayNameLastName,
 		@MeetingRole MeetingRole,
@@ -1650,7 +1654,7 @@ GO
 -- Description: Create new stored procedure to get meetings list by company and center
 -- Return meetings list
 -- ==============================================================================================
---Exec GET_Meetings_By_Company_Center 1046, 1, 2
+--Exec GET_Meetings_By_Company_Center 1046, 1, 1
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'GET_Meetings_By_Company_Center')
 BEGIN
     DROP PROC GET_Meetings_By_Company_Center
@@ -1660,7 +1664,7 @@ Create PROC GET_Meetings_By_Company_Center
 (	
 	@Company_Id INT,
 	@Center_Id INT = NULL,
-	@MeetingsStatus TINYINT = 1
+	@MeetingStatus TINYINT = 1
 )
 AS
 BEGIN
@@ -1679,6 +1683,8 @@ BEGIN
 		T.TimeZoneInfoId [TimeZoneName],
 		M.MeetingStartTime,
 		M.MeetingEndTime,
+		DATEADD(minute, -(L.GraceTime), M.MeetingStartTime) MeetingStartTimeWithGraceTime,
+		DATEADD(minute, +((L.CallDuration - 1)), M.MeetingStartTime) MeetingEndTimeWithCallDuration,
 		M.MeetingTypeId,
 		L.MeetingTypeName,		
 		L.GraceTime,
@@ -1710,7 +1716,7 @@ BEGIN
 	JOIN Live_Meeting_Type L WITH (NOLOCK) ON L.SysMeetingTypeId = M.MeetingTypeId
 	WHERE (M.Company_Id = @Company_Id OR M.Company_Id = 0) AND
 	(M.Center_Id = @Center_Id OR M.Center_Id = 0) AND
-	(M.MeetingsStatus = @MeetingsStatus OR M.MeetingsStatus = 0)
+	(M.MeetingsStatus = @MeetingStatus OR M.MeetingsStatus = 0)
 
 END
 GO
@@ -1748,6 +1754,8 @@ BEGIN
 		T.TimeZoneInfoId [TimeZoneName],
 		M.MeetingStartTime,
 		M.MeetingEndTime,
+		DATEADD(minute, -(T.GraceTime), M.MeetingStartTime) MeetingStartTimeWithGraceTime,
+		DATEADD(minute, +((T.CallDuration - 1)), M.MeetingStartTime) MeetingEndTimeWithCallDuration,
 		M.MeetingTypeId,
 		L.MeetingTypeName,
 		L.GraceTime,
@@ -1864,12 +1872,13 @@ BEGIN
 	JOIN User_Details U WITH (NOLOCK) ON U.User_Id = S.userId
 	JOIN Family_Details F WITH (NOLOCK) ON F.Family_Id = S.Family_id
 	JOIN child_details C WITH (NOLOCK) ON C.Family_Id = F.Family_Id
-	WHERE (S.Company_id = @Company_Id OR S.Company_Id = 1) AND
-	(S.center_id = @Center_id OR S.center_id = 1) AND
+	WHERE (S.Company_id = @Company_Id) AND
+	(S.center_id = @Center_id) AND
 	S.PP_status = 1 AND
 	S.userId > 0 AND	
-	(F.Center_Id = @Center_Id  OR F.Center_Id = 1) AND
-	(S.Center_Id = @Center_Id  OR S.Center_Id = 1)
+	(F.Center_Id = @Center_Id) AND
+	(S.Center_Id = @Center_Id) AND
+	F.Family_Status = 1
 	ORDER BY F.Family_Account_No ASC
 
 END
@@ -1891,7 +1900,7 @@ Create PROCEDURE GET_Meetings_List_For_Parent
 (   
  @Company_Id INT,  
  @Center_Id INT = NULL,  
- @MeetingsStatus TINYINT = 1 ,
+ @MeetingStatus TINYINT = 1 ,
  @ParentId int
 )  
 AS  
@@ -1917,6 +1926,9 @@ BEGIN
 		M.MeetingDescription,
 		dbo.GetParticipantsByMeetingId(M.SysMeetingId) Participants,
 		dbo.GetParticipantsCountByMeetingId(M.SysMeetingId) ParticipantsCount,
+		LMP.Family_Id,
+		LMP.Child_Id,
+		LMP.MeetingParticipantUserId,
 		M.IsSendReminderHost,
 		M.IsSendReminderParticipants,
 		M.IsRecordSession,
@@ -2138,4 +2150,32 @@ select * from Live_License
 select * from Live_Meeting_License
 Select * from Live_Meetings
 select * from Live_Meeting_Participants
+
+gujarathmodel@beyonduniverse.in
+subtest123
+http://localhost:57613/
 */
+
+select * from Live_Meetings  where SysMeetingId = 17
+Select * from Live_Meeting_Participants where SysMeetingId = 17
+Select * from Live_Meeting_Participants where MeetingParticipantUserId = 29096
+
+Truncate table Live_Meetings  where SysMeetingId = 17
+Truncate table Live_Meeting_Participants where SysMeetingId = 17
+
+select dbo.IsMeetingHostUserTimeOverLap(29096, '2020-06-20 14:19:00.000', '2020-06-20 15:20:00.000',0)
+select dbo.IsMeetingParticipantsTimeOverLap(@Participants NVARCHAR(1000), @MeetingStartTime DATETIME, @MeetingEndTime DATETIME, @SysMeetingId INT)  
+
+Exec SAVE_Live_Meeting 1046, 1, 247, 'DBS', 7, '6/17/2020 2:04:00 AM', '6/17/2020 4:06:00 AM', 1, 'SFG', '35933,35933', '13191,29084', '19657,39914',  0, 1, 0, 0, '6/17/2020 10:52:00', 0
+
+select * from app_config Where AppConfigId = 81
+select * from app_config_beta Where AppConfigId = 81
+
+gujarathmodel@beyonduniverse.in
+subtest123
+http://localhost:57613/
+
+
+ update App_config set Value ='https://testfamily.1core.com/#/live/close' where AppConfigId = 81
+
+    update app_config_beta set Value ='https://testfamily.1core.com/#/live/close' where AppConfigId = 81
