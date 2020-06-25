@@ -1,25 +1,61 @@
+-- app_config
+Delete FROM app_config WHERE AppConfigId IN (80,81,82,83)
+Delete FROM app_config_beta WHERE AppConfigId IN (80,81,82,83)
+GO
+
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 80)
 BEGIN
-	INSERT INTO app_config (AppConfigId, Value , Description) values (80, 'http://localhost:4200/#/center/live/close', 'Meeting Leave Url')
+	INSERT INTO app_config (AppConfigId, Value , Description) values (80, 'https://360.oncareoffice.com/live/#/close/', 'Meeting Leave Url')
 END
 GO
+
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 80)
 BEGIN
-	INSERT INTO app_config_beta (AppConfigId, Value , Description) values (80, 'http://localhost:4200/#/center/live/close', 'Meeting Leave Url')
+	INSERT INTO app_config_beta (AppConfigId, Value , Description) values (80, 'https://360.oncareoffice.com/live/#/close/', 'Meeting Leave Url')
 END
 GO
 
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 81)
 BEGIN
-	INSERT INTO app_config (AppConfigId, Value , Description) values (81, 'http://localhost:4255/#/live/close', 'Meeting Leave PP Url')
+	INSERT INTO app_config (AppConfigId, Value , Description) values (81, 'https://360.oncareoffice.com/live/#/close/', 'PP Meeting Leave Url')
 END
 GO
 
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 81)
 BEGIN
-	INSERT INTO app_config_beta (AppConfigId, Value , Description) values (81, 'http://localhost:4255/#/live/close', 'Meeting Leave PP Url')
+	INSERT INTO app_config_beta (AppConfigId, Value , Description) values (81, 'https://360.oncareoffice.com/live/#/close/', ' PP Meeting Leave Url')
 END
 GO
+
+IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 82)
+BEGIN
+	INSERT INTO app_config (AppConfigId, Value , Description) values (82, 'https://360.oncareoffice.com/live/#/live/', 'Meeting Start / Join URL')
+END
+GO
+
+IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 82)
+BEGIN
+	INSERT INTO app_config_beta (AppConfigId, Value , Description) values (82, 'https://360.oncareoffice.com/live/#/live/', 'Meeting Start / Join URL')
+END
+GO
+
+IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 83)
+BEGIN
+	INSERT INTO app_config (AppConfigId, Value , Description) values (83, 'https://360.oncareoffice.com/live/#/live/', 'PP Meeting Start / Join URL ')
+END
+GO
+
+IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 83)
+BEGIN
+	INSERT INTO app_config_beta (AppConfigId, Value , Description) values (83, 'https://360.oncareoffice.com/live/#/live/', 'PP Meeting Start / Join URL')
+END
+GO
+
+SELECT *  FROM app_config WHERE AppConfigId IN (80,81,82,83) ORDER By AppConfigId
+SELECT *  FROM app_config_beta WHERE AppConfigId IN (80,81,82,83) ORDER By AppConfigId
+GO
+
+-- Pii_Elements:
 
 IF EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Live_Meeting_Hosts_Company_Center')
 BEGIN
