@@ -127,3 +127,21 @@ BEGIN
 	SELECT 'GET_Live_Meeting_LicenseDetails_By_MeetingId', '{"InputColumnNames":null,"OutputParamaters":   [{"TableIndex":0,"OutputColumnNames":["DisplayNameFirstName" ,"DisplayNameLastName"]}]}'
 END
 GO
+ALTER TABLE Live_Meeting_License ADD OneCoreUserId INT
+GO
+ALTER TABLE Live_Meetings ADD MeetingId VARCHAR(50) NULL
+GO
+ALTER TABLE Live_Meetings ADD StartURL VARCHAR(4000) NULL
+GO
+ALTER TABLE Live_Meetings ADD JoinURL VARCHAR(1000) NULL
+GO
+UPDATE App_config SET [Value] = 'https://api.zoom.us/v2/users/[]/meetings' WHERE AppConfigId = 82
+GO
+UPDATE app_config_beta SET [Value] = 'https://api.zoom.us/v2/users/[]/meetings' WHERE AppConfigId = 82
+GO
+ALTER TABLE timezone ADD AlternateTimeZoneInfoId VARCHAR(100) NULL
+GO
+ALTER TABLE Live_Meetings ADD Uuid VARCHAR(1000) NULL
+GO
+ALTER TABLE Live_Meeting_Participants ADD Eqs VARCHAR(4000) NULL
+GO

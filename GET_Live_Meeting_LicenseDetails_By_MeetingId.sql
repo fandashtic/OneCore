@@ -14,22 +14,24 @@ GO
 CREATE PROC GET_Live_Meeting_LicenseDetails_By_MeetingId      
 (       
  @SysMeetingId INT,      
- @ParentId INT = 0 ,    
- @childId INT=0    
+ @SysParticipantId INT = 0
 )      
 AS      
 BEGIN      
  DECLARE @DisplayNameFirstName AS varbinary(800)      
  DECLARE @DisplayNameLastName AS varbinary(800)      
- DECLARE @MeetingRole AS INT      
+ DECLARE @MeetingRole AS INT 
+ DECLARE @ChildId AS INT 
  DECLARE @MeetingUserId AS INT      
       
- IF(@ParentId > 0)      
+ IF(@SysParticipantId > 0)      
  BEGIN      
-  SET @MeetingRole = 0      
-  SET @MeetingUserId = @ParentId     
+  SET @MeetingRole = 0     
+  
+  select @MeetingUserId = MeetingParticipantUserId, @ChildId = Child_Id from Live_Meeting_Participants WITH (NOLOCK) WHERE SysParticipantId = @SysParticipantId
+
   SELECT @DisplayNameFirstName =FIRST_NAME, @DisplayNameLastName = LAST_NAME    
-  FROM Child_Details  WITH (NOLOCK) WHERE child_id=@childId    
+  FROM Child_Details  WITH (NOLOCK) WHERE child_id=@ChildId    
      
  END      
  ELSE      
@@ -45,7 +47,7 @@ BEGIN
   L.LiveApiSecret,        
   ML.LiveUserId,      
   ML.LiveUserName,      
-  ML.LiveMeetingId,      
+  ISNULL(M.MeetingId, ML.LiveMeetingId) LiveMeetingId,      
   ML.LiveMeetingPassword,      
   T.CallDuration,      
   '' [LeaveUrl],      

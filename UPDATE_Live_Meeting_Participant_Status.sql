@@ -12,11 +12,10 @@ GO
 Create PROC UPDATE_Live_Meeting_Participant_Status
 (
 	@SysParticipantId INT = 0,
-	@FamilyId INT = 0,
-	@ChildId INT = 0,
 	@MeetingParticipantStatus TINYINT,
 	@UserId INT,
-	@TransactionDttm DATETIME
+	@TransactionDttm DATETIME,
+	@Eqs VARCHAR(4000)
 )
 AS
 BEGIN
@@ -25,13 +24,11 @@ BEGIN
 		UPDATE L
 		SET 
 			L.MeetingParticipantStatus = @MeetingParticipantStatus,
+			L.Eqs = @Eqs,
 			L.ModifiedBy = @UserId,
 			L.ModifiedDttm = @TransactionDttm
 		FROM Live_Meeting_Participants L WITH (NOLOCK)
-			WHERE L.SysParticipantId = @SysParticipantId AND
-			L.Family_Id = @FamilyId AND
-			L.Child_Id = @ChildId
-
+			WHERE L.SysParticipantId = @SysParticipantId
 	END
 END
 GO
