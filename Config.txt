@@ -1,0 +1,22 @@
+1Code Test Server SQL:
+
+192.168.179.195,1965
+ocotst_manickam
+mTg7S@70K&xdF2875t!tmzB2y
+
+VPN:
+ocotst_manickam_vpn
+QSJRf0cil#/1g8Z=5:h;D&g7
+
+Software Download link:
+https://swupdate.openvpn.org/community/releases/openvpn-install-2.4.9-I601-Win10.exe
+
+Remote:
+IP - 192.168.180.64
+Username: ocotst_manick_ra_app
+QSJRf0cil#/1g8Z=5:h;D&g7
+
+WEB File Path: D:\OCO_360
+Staff Portal D:\1CoreStaff
+Family Portal File Path: D:\1COREPARENT
+

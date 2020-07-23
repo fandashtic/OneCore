@@ -16,7 +16,7 @@ BEGIN
 	DECLARE @IsHasValue BIT
 	SET @IsHasValue = 0;
 	
-	IF(ISNULL(@IsHasValue, '') <> '') SET @IsHasValue = 1;
+	IF(ISNULL(@Data, '') <> '') SET @IsHasValue = 1;
 
 	RETURN @IsHasValue;
 END 

@@ -4,7 +4,7 @@
 -- Description: Create new stored procedure to get meetings list by company and center
 -- Return meeting details by id
 -- ==============================================================================================
---Exec GET_Meeting_By_Id 40, 342338
+--Exec GET_Meeting_By_Id 67
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'GET_Meeting_By_Id')
 BEGIN
     DROP PROC GET_Meeting_By_Id
@@ -20,7 +20,8 @@ BEGIN
  SELECT DISTINCT  
   M.SysMeetingId,  
   M.SysLiveLicenseId,  
-  M.SysLiveMeetingLicenseId,  
+  M.SysLiveMeetingLicenseId,
+  M.SysVcEnrollmentId,
   M.Company_Id,  
   M.Center_Id,  
   M.MeetingHostUserId,  
@@ -31,6 +32,8 @@ BEGIN
   T.TimeZoneInfoId [TimeZoneName],  
   M.MeetingStartTime,  
   M.MeetingEndTime,  
+  M.ActualMeetingStartTime,
+  M.ActualMeetingEndTime,
   DATEADD(minute, -(L.GraceTime), M.MeetingStartTime) MeetingStartTimeWithGraceTime,  
   DATEADD(minute, +((L.CallDuration - 1)), M.MeetingStartTime) MeetingEndTimeWithCallDuration,  
   M.MeetingTypeId,  
@@ -43,11 +46,12 @@ BEGIN
   M.JoinURL,
   M.Uuid,
   dbo.GetParticipantsByMeetingId(M.SysMeetingId) Participants,  
-  dbo.GetParticipantsCountByMeetingId(M.SysMeetingId) ParticipantsCount,  
+  ISNULL(M.ParticipantsCount, dbo.GetParticipantsCountByMeetingId(M.SysMeetingId)) ParticipantsCount,
+  ISNULL(M.MeetingAttendeesCount, dbo.GetMeetingAttendeesCount(M.SysMeetingId)) MeetingAttendeesCount,
   M.IsSendReminderHost,  
   M.IsSendReminderParticipants,  
   M.IsRecordSession,  
-  M.MeetingsStatus,    
+  M.MeetingStatus,    
   CE.Center_Name,  
   C.Company_Name,  
   M.CreatedBy,   

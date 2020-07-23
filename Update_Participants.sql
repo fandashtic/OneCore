@@ -27,16 +27,19 @@ BEGIN
 	DECLARE @Error VARCHAR(255);
 	DECLARE	@Company_Id INT
 	DECLARE @Center_Id INT
+	DECLARE @MeetingStartTime DATETIME
+	DECLARE @MeetingEndTime DATETIME
 
 	SET @IsMeetingHostUserTimeOverLap = 0;
 	SET @IsMeetingParticipantsTimeOverLap = 0;
-	SET @Error = '';	
+	SET @Error = '';
+	SELECT @MeetingStartTime = MeetingStartTime , @MeetingEndTime = MeetingEndTime FROM Live_Meetings WITH (NOLOCK) WHERE SysMeetingId = @SysMeetingId
 	
 	-- Is meeting host user time overlap
 	--SET @IsMeetingHostUserTimeOverLap = dbo.IsMeetingHostUserTimeOverLap(@MeetingHostUserId, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
 
 	-- Is any meeting participants time Overlap
-	--SET @IsMeetingParticipantsTimeOverLap = dbo.IsMeetingParticipantsTimeOverLap(@ParentIds, @FamilyIds, @ChildIds, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
+	SET @IsMeetingParticipantsTimeOverLap = dbo.IsMeetingParticipantsTimeOverLap(@ParentIds, @FamilyIds, @ChildIds, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
 	
 	IF(@IsMeetingHostUserTimeOverLap = 0 AND @IsMeetingParticipantsTimeOverLap = 0)
 	BEGIN
@@ -82,6 +85,8 @@ BEGIN
 			END
 
 		END
+
+		UPDATE Live_Meetings SET ParticipantsCount = dbo.GetParticipantsCountByMeetingId(@SysMeetingId) WHERE SysMeetingId = @SysMeetingId
 	END
 	ELSE
 	BEGIN

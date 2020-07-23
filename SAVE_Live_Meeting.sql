@@ -50,10 +50,10 @@ BEGIN
 	SET @Error = '';	
 	
 	-- Is meeting host user time overlap
-	--SET @IsMeetingHostUserTimeOverLap = dbo.IsMeetingHostUserTimeOverLap(@MeetingHostUserId, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
+	SET @IsMeetingHostUserTimeOverLap = dbo.IsMeetingHostUserTimeOverLap(@MeetingHostUserId, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
 
 	-- Is any meeting participants time Overlap
-	--SET @IsMeetingParticipantsTimeOverLap = dbo.IsMeetingParticipantsTimeOverLap(@ParentIds, @FamilyIds, @ChildIds, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
+	SET @IsMeetingParticipantsTimeOverLap = dbo.IsMeetingParticipantsTimeOverLap(@ParentIds, @FamilyIds, @ChildIds, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
 	
 	IF(@IsMeetingHostUserTimeOverLap = 0 AND @IsMeetingParticipantsTimeOverLap = 0)
 	BEGIN
@@ -106,7 +106,7 @@ BEGIN
 					L.Uuid = @Uuid,
 					L.IsSendReminderParticipants = @IsSendReminderParticipants,
 					L.IsRecordSession = @IsRecordSession,
-					L.MeetingsStatus = @MeetingStatus,
+					L.MeetingStatus = @MeetingStatus,
 					L.ModifiedBy = @UserId,
 					L.ModifiedDttm = @TransactionDttm
 				FROM Live_Meetings L WITH (NOLOCK)
@@ -133,7 +133,7 @@ BEGIN
 					[IsSendReminderHost],
 					[IsSendReminderParticipants],
 					[IsRecordSession],
-					[MeetingsStatus],
+					[MeetingStatus],
 					[CreatedBy],
 					[CreatedDttm])
 				SELECT 
@@ -200,12 +200,14 @@ BEGIN
 
 			END
 		END
+
+		UPDATE Live_Meetings SET ParticipantsCount = dbo.GetParticipantsCountByMeetingId(@SysMeetingId) WHERE SysMeetingId = @SysMeetingId
 	END
 	ELSE
 	BEGIN
-		IF(@IsMeetingHostUserTimeOverLap = 1) SET @Error = @Error + (CASE WHEN dbo.IsHasValue(@Error) = 1 THEN ' ,' ELSE '' END) + 'Meeting Host User Time Overlap';
-		IF(@IsMeetingParticipantsTimeOverLap = 1) SET @Error = @Error + (CASE WHEN dbo.IsHasValue(@Error) = 1 THEN ' ,' ELSE '' END) + 'Meeting Participants Time Overlap';
-	END
+		IF(@IsMeetingHostUserTimeOverLap = 1) SET @Error ='Meeting Host User Time Overlap';
+		IF(@IsMeetingParticipantsTimeOverLap = 1) SET @Error = @Error + (CASE WHEN dbo.IsHasValue(@Error) = 1 THEN ' And ' ELSE ' ' END) + 'Meeting Participants Time Overlap';
+	END	
 
 	SELECT @SysMeetingId [SysMeetingId], @Error [Error];
 END

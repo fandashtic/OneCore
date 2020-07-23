@@ -1,0 +1,14 @@
+Start Meeting
+End Meeting
+Participant joined meeting before host
+Participant was waiting for host to join
+Participant/Host joined meeting
+Participant/Host left meeting
+
+1Code Testing Web Hooks URL:
+
+https://360.oncareoffice.com/api/MeetingHooks/UpdateMeetingParticipantJoinedStatus
+
+
+Live Build: ng build --base-href "/live/" --prod
+Web and PP Build: ng build --base-href "/ui/" --prod --project=oco-app

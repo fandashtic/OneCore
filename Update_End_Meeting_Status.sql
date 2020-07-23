@@ -14,7 +14,9 @@ Create PROC Update_End_Meeting_Status
 	@Uuid VARCHAR(1000),
 	@MeetingStatus TINYINT,
 	@UserId INT,
-	@TransactionDttm DATETIME
+	@TransactionDttm DATETIME,
+	@ActualMeetingStartTime DATETIME = null,
+	@ActualMeetingEndTime DATETIME = null
 )
 AS
 BEGIN
@@ -23,9 +25,9 @@ BEGIN
 
 	IF(@SysMeetingId > 0)
 	BEGIN		
-		EXEC UPDATE_Live_Meeting_Status @SysMeetingId, @MeetingStatus, @UserId, @TransactionDttm
+		EXEC UPDATE_Live_Meeting_Status @SysMeetingId, @MeetingStatus, @UserId, @TransactionDttm, @ActualMeetingStartTime, @ActualMeetingEndTime
 	END
 
-	SELECT 'Success';
+	SELECT 'Success' [Status], SysMeetingId, MeetingHostUserId, TimeZoneId FROM Live_Meetings L WITH (NOLOCK) WHERE L.Uuid = @Uuid
 END
 GO

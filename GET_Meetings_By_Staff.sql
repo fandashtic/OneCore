@@ -1,19 +1,22 @@
 -- ==============================================================================================
 -- Author: Manickam.G
--- Create date: 8th Jun 2020
--- Description: Create new stored procedure to get meetings list by company and center
+-- Create date: 22nd Jul 2020
+-- Description: Create new stored procedure to get meetings list by company and center and staff id
 -- Return meetings list
 -- ==============================================================================================
---Exec GET_Meetings_By_Company_Center 1183, 4, '2020-07-06 13:33:47.363','2020-07-06 13:33:47.363', 3
-IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'GET_Meetings_By_Company_Center')
+--Exec GET_Meetings_By_Staff 1183, 4, 35833, '2020-07-22 13:33:47.363','2020-07-22 13:33:47.363', 1
+--Exec GET_Meetings_By_Staff 1183, 4, 35833, '2020-07-22 13:33:47.363','2020-07-22 13:33:47.363', 2
+--Exec GET_Meetings_By_Staff 1183, 4, 35833, '2020-07-22 13:33:47.363','2020-07-22 13:33:47.363', 3
+IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'GET_Meetings_By_Staff')
 BEGIN
-    DROP PROC GET_Meetings_By_Company_Center
+    DROP PROC GET_Meetings_By_Staff
 END
 GO
-Create PROC GET_Meetings_By_Company_Center
+Create PROC GET_Meetings_By_Staff
 (	
 	@Company_Id INT,
 	@Center_Id INT,
+	@MeetingHostUserId INT,
 	@TransactionDttm DateTime,
 	@ServerUTCDttm DATETIME,
 	@MeetingRequestType TINYINT = 1 -- 1 = Today's Meetings, 2 = Upcoming Meetings, 3 = Past Meetings	
@@ -83,6 +86,8 @@ BEGIN
 		JOIN Live_Meeting_Type L WITH (NOLOCK) ON L.SysMeetingTypeId = M.MeetingTypeId
 		WHERE (M.Company_Id = @Company_Id OR M.Company_Id = 0) AND
 		(M.Center_Id = @Center_Id OR M.Center_Id = 0) AND
+		M.SysVcEnrollmentId > 0 AND
+		M.MeetingHostUserId = @MeetingHostUserId AND
 		(dbo.StripDateFromTime(M.MeetingStartTime) = dbo.StripDateFromTime(@TransactionDttm) OR dbo.StripDateFromTime(M.MeetingEndTime) = dbo.StripDateFromTime(@TransactionDttm))
 		Order By M.MeetingStartTime ASC
 	END
@@ -149,6 +154,8 @@ BEGIN
 		JOIN Live_Meeting_Type L WITH (NOLOCK) ON L.SysMeetingTypeId = M.MeetingTypeId
 		WHERE (M.Company_Id = @Company_Id OR M.Company_Id = 0) AND
 		(M.Center_Id = @Center_Id OR M.Center_Id = 0) AND
+		M.SysVcEnrollmentId > 0 AND
+		M.MeetingHostUserId = @MeetingHostUserId AND
 		dbo.StripDateFromTime(M.MeetingStartTime) > dbo.StripDateFromTime(@TransactionDttm)
 		Order By M.MeetingStartTime ASC
 	END
@@ -215,6 +222,8 @@ BEGIN
 		JOIN Live_Meeting_Type L WITH (NOLOCK) ON L.SysMeetingTypeId = M.MeetingTypeId
 		WHERE (M.Company_Id = @Company_Id OR M.Company_Id = 0) AND
 		(M.Center_Id = @Center_Id OR M.Center_Id = 0) AND
+		M.SysVcEnrollmentId > 0 AND
+		M.MeetingHostUserId = @MeetingHostUserId AND
 		dbo.StripDateFromTime(M.MeetingEndTime) < dbo.StripDateFromTime(@TransactionDttm)
 		Order By M.MeetingStartTime ASC
 	END

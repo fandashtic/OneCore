@@ -4,7 +4,7 @@
 -- Description: Create new stored procedure to get live meeting details by Participant
 -- Return meeting details list
 -- ================================================r=================================================
---Exec GET_Meetings_List_For_Parent 1183, 4, '2020-07-07 07:44:34','2020-07-07 07:44:34', 3, 398980
+--Exec GET_Meetings_List_For_Parent 1183, 4, '2020-07-17 07:44:34','2020-07-17 07:44:34', 1, 398980
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'GET_Meetings_List_For_Parent')
 BEGIN
     DROP PROC GET_Meetings_List_For_Parent
@@ -29,7 +29,8 @@ BEGIN
 		SELECT DISTINCT    
 		M.SysMeetingId,    
 		M.SysLiveLicenseId,    
-		M.SysLiveMeetingLicenseId,    
+		M.SysLiveMeetingLicenseId,
+		M.SysVcEnrollmentId,
 		M.Company_Id,    
 		M.Center_Id,    
 		M.MeetingHostUserId,    
@@ -40,6 +41,8 @@ BEGIN
 		T.TimeZoneInfoId [TimeZoneName],    
 		M.MeetingStartTime,    
 		M.MeetingEndTime,  
+		M.ActualMeetingStartTime,
+		M.ActualMeetingEndTime,
 		DATEADD(minute, -(L.GraceTime), M.MeetingStartTime) MeetingStartTimeWithGraceTime,  
 		DATEADD(minute, +((L.CallDuration - 1)), M.MeetingStartTime) MeetingEndTimeWithCallDuration,
 		dbo.GetDayOn(@ServerUTCDttm, M.MeetingStartTime) [MeetingOn],
@@ -47,17 +50,22 @@ BEGIN
 		L.MeetingTypeName,      
 		L.GraceTime,    
 		L.CallDuration,    
-		M.MeetingDescription,    
+		M.MeetingDescription,  
+		M.JoinURL,
+		M.Uuid,
 		dbo.GetParticipantsByMeetingId(M.SysMeetingId) Participants,    
-		dbo.GetParticipantsCountByMeetingId(M.SysMeetingId) ParticipantsCount,    
+		dbo.GetParticipantsCountByMeetingId(M.SysMeetingId) ParticipantsCount,
+		dbo.GetMeetingAttendeesCount(M.SysMeetingId) MeetingAttendeesCount,
 		LMP.Family_Id,  
 		LMP.Child_Id,  
+		(SELECT TOP 1 FIRST_NAME FROM Child_Details WITH (NOLOCK) WHERE Child_Id = LMP.Child_Id) Child_First_Name,
+		(SELECT TOP 1 LAST_NAME FROM Child_Details WITH (NOLOCK) WHERE Child_Id = LMP.Child_Id) Child_Last_Name,
 		LMP.MeetingParticipantUserId,
 		LMP.SysParticipantId,
 		M.IsSendReminderHost,    
 		M.IsSendReminderParticipants,    
 		M.IsRecordSession,    
-		M.MeetingsStatus [MeetingStatus],      
+		LMP.MeetingParticipantStatus MeetingStatus,      
 		CE.Center_Name,    
 		C.Company_Name,    
 		M.CreatedBy,     
@@ -69,7 +77,7 @@ BEGIN
 		'' [ModifiedByLastName],      
 		M.ModifiedDttm    
 		FROM Live_Meetings M WITH (NOLOCK)    
-		JOIN (SELECT SysMeetingId, MeetingParticipantStatus, Max(SysParticipantId) SysParticipantId, MAX(Family_Id) Family_Id, MAX(Child_Id) Child_Id, MAX(MeetingParticipantUserId) MeetingParticipantUserId FROM Live_Meeting_Participants WITH (NOLOCK) WHERE MeetingParticipantUserId = @ParentId GROUP BY SysMeetingId, MeetingParticipantStatus) LMP ON LMP.SysMeetingId = M.SysMeetingId AND LMP.MeetingParticipantStatus IN (1,2)
+		JOIN (SELECT SysMeetingId, MeetingParticipantStatus, SysParticipantId, Family_Id, Child_Id, MeetingParticipantUserId FROM Live_Meeting_Participants WITH (NOLOCK) WHERE MeetingParticipantUserId = @ParentId) LMP ON LMP.SysMeetingId = M.SysMeetingId -- AND LMP.MeetingParticipantStatus IN (1,2)
 		JOIN User_Details U WITH (NOLOCK) ON U.User_Id = M.CreatedBy    
 		JOIN User_Details H WITH (NOLOCK) ON H.User_Id = M.MeetingHostUserId 
 		JOIN Company_Details C WITH (NOLOCK) ON C.Company_Id = M.Company_Id    
@@ -77,7 +85,6 @@ BEGIN
 		JOIN timezone T WITH (NOLOCK) ON T.timezone_id = M.TimeZoneId    
 		JOIN Live_Meeting_Type L WITH (NOLOCK) ON L.SysMeetingTypeId = M.MeetingTypeId    
 		WHERE LMP.MeetingParticipantUserId = @ParentId  AND
-		M.MeetingsStatus IN (1,2) AND 
 		(dbo.StripDateFromTime(M.MeetingStartTime) = dbo.StripDateFromTime(@TransactionDttm) OR dbo.StripDateFromTime(M.MeetingEndTime) = dbo.StripDateFromTime(@TransactionDttm))
 	END
 
@@ -86,7 +93,8 @@ BEGIN
 		SELECT DISTINCT    
 		M.SysMeetingId,    
 		M.SysLiveLicenseId,    
-		M.SysLiveMeetingLicenseId,    
+		M.SysLiveMeetingLicenseId,
+		M.SysVcEnrollmentId,
 		M.Company_Id,    
 		M.Center_Id,    
 		M.MeetingHostUserId,    
@@ -97,6 +105,8 @@ BEGIN
 		T.TimeZoneInfoId [TimeZoneName],    
 		M.MeetingStartTime,    
 		M.MeetingEndTime, 
+		M.ActualMeetingStartTime,
+		M.ActualMeetingEndTime,
 		DATEADD(minute, -(L.GraceTime), M.MeetingStartTime) MeetingStartTimeWithGraceTime,  
 		DATEADD(minute, +((L.CallDuration - 1)), M.MeetingStartTime) MeetingEndTimeWithCallDuration,
 		dbo.GetDayOn(@ServerUTCDttm, M.MeetingStartTime) [MeetingOn],
@@ -105,16 +115,21 @@ BEGIN
 		L.GraceTime,    
 		L.CallDuration,    
 		M.MeetingDescription,    
+		M.JoinURL,
+		M.Uuid,
 		dbo.GetParticipantsByMeetingId(M.SysMeetingId) Participants,    
-		dbo.GetParticipantsCountByMeetingId(M.SysMeetingId) ParticipantsCount,    
+		dbo.GetParticipantsCountByMeetingId(M.SysMeetingId) ParticipantsCount,
+		dbo.GetMeetingAttendeesCount(M.SysMeetingId) MeetingAttendeesCount,
 		LMP.Family_Id,  
 		LMP.Child_Id,  
+		(SELECT TOP 1 FIRST_NAME FROM Child_Details WITH (NOLOCK) WHERE Child_Id = LMP.Child_Id) Child_First_Name,
+		(SELECT TOP 1 LAST_NAME FROM Child_Details WITH (NOLOCK) WHERE Child_Id = LMP.Child_Id) Child_Last_Name,
 		LMP.MeetingParticipantUserId,
 		LMP.SysParticipantId,
 		M.IsSendReminderHost,    
 		M.IsSendReminderParticipants,    
 		M.IsRecordSession,    
-		M.MeetingsStatus [MeetingStatus],        
+		LMP.MeetingParticipantStatus MeetingStatus, 
 		CE.Center_Name,    
 		C.Company_Name,    
 		M.CreatedBy,     
@@ -126,7 +141,7 @@ BEGIN
 		'' [ModifiedByLastName],      
 		M.ModifiedDttm    
 		FROM Live_Meetings M WITH (NOLOCK)    
-		JOIN (SELECT SysMeetingId, MeetingParticipantStatus, Max(SysParticipantId) SysParticipantId, MAX(Family_Id) Family_Id, MAX(Child_Id) Child_Id, MAX(MeetingParticipantUserId) MeetingParticipantUserId FROM Live_Meeting_Participants WITH (NOLOCK) WHERE MeetingParticipantUserId = @ParentId GROUP BY SysMeetingId, MeetingParticipantStatus) LMP ON LMP.SysMeetingId = M.SysMeetingId AND LMP.MeetingParticipantStatus IN (1,2)
+		JOIN (SELECT SysMeetingId, MeetingParticipantStatus, SysParticipantId, Family_Id, Child_Id, MeetingParticipantUserId FROM Live_Meeting_Participants WITH (NOLOCK) WHERE MeetingParticipantUserId = @ParentId) LMP ON LMP.SysMeetingId = M.SysMeetingId -- AND LMP.MeetingParticipantStatus IN (1,2)
 		JOIN User_Details U WITH (NOLOCK) ON U.User_Id = M.CreatedBy    
 		JOIN User_Details H WITH (NOLOCK) ON H.User_Id = M.MeetingHostUserId 
 		JOIN Company_Details C WITH (NOLOCK) ON C.Company_Id = M.Company_Id    
@@ -134,7 +149,6 @@ BEGIN
 		JOIN timezone T WITH (NOLOCK) ON T.timezone_id = M.TimeZoneId    
 		JOIN Live_Meeting_Type L WITH (NOLOCK) ON L.SysMeetingTypeId = M.MeetingTypeId    
 		WHERE LMP.MeetingParticipantUserId = @ParentId  AND
-		M.MeetingsStatus IN (1,2) AND 
 		dbo.StripDateFromTime(M.MeetingStartTime) > dbo.StripDateFromTime(@TransactionDttm)
 	END
 
@@ -143,7 +157,8 @@ BEGIN
 		SELECT DISTINCT    
 		M.SysMeetingId,    
 		M.SysLiveLicenseId,    
-		M.SysLiveMeetingLicenseId,    
+		M.SysLiveMeetingLicenseId,
+		M.SysVcEnrollmentId,
 		M.Company_Id,    
 		M.Center_Id,    
 		M.MeetingHostUserId,    
@@ -153,7 +168,9 @@ BEGIN
 		M.TimeZoneId,    
 		T.TimeZoneInfoId [TimeZoneName],    
 		M.MeetingStartTime,    
-		M.MeetingEndTime, 
+		M.MeetingEndTime,
+		M.ActualMeetingStartTime,
+		M.ActualMeetingEndTime,		
 		DATEADD(minute, -(L.GraceTime), M.MeetingStartTime) MeetingStartTimeWithGraceTime,  
 		DATEADD(minute, +((L.CallDuration - 1)), M.MeetingStartTime) MeetingEndTimeWithCallDuration,
 		dbo.GetDayOn(@ServerUTCDttm, M.MeetingStartTime) [MeetingOn],
@@ -161,17 +178,22 @@ BEGIN
 		L.MeetingTypeName,      
 		L.GraceTime,    
 		L.CallDuration,    
-		M.MeetingDescription,    
+		M.MeetingDescription, 
+		M.JoinURL,
+		M.Uuid,
 		dbo.GetParticipantsByMeetingId(M.SysMeetingId) Participants,    
-		dbo.GetParticipantsCountByMeetingId(M.SysMeetingId) ParticipantsCount,    
+		dbo.GetParticipantsCountByMeetingId(M.SysMeetingId) ParticipantsCount,
+		dbo.GetMeetingAttendeesCount(M.SysMeetingId) MeetingAttendeesCount,
 		LMP.Family_Id,  
 		LMP.Child_Id,  
+		(SELECT TOP 1 FIRST_NAME FROM Child_Details WITH (NOLOCK) WHERE Child_Id = LMP.Child_Id) Child_First_Name,
+		(SELECT TOP 1 LAST_NAME FROM Child_Details WITH (NOLOCK) WHERE Child_Id = LMP.Child_Id) Child_Last_Name,
 		LMP.MeetingParticipantUserId,
 		LMP.SysParticipantId,
 		M.IsSendReminderHost,    
 		M.IsSendReminderParticipants,    
 		M.IsRecordSession,    
-		M.MeetingsStatus [MeetingStatus],        
+		LMP.MeetingParticipantStatus MeetingStatus, 
 		CE.Center_Name,    
 		C.Company_Name,    
 		M.CreatedBy,     
@@ -183,7 +205,7 @@ BEGIN
 		'' [ModifiedByLastName],      
 		M.ModifiedDttm    
 		FROM Live_Meetings M WITH (NOLOCK)    
-		JOIN (SELECT SysMeetingId, MeetingParticipantStatus, Max(SysParticipantId) SysParticipantId, MAX(Family_Id) Family_Id, MAX(Child_Id) Child_Id, MAX(MeetingParticipantUserId) MeetingParticipantUserId FROM Live_Meeting_Participants WITH (NOLOCK) WHERE MeetingParticipantUserId = @ParentId GROUP BY SysMeetingId, MeetingParticipantStatus) LMP ON LMP.SysMeetingId = M.SysMeetingId AND LMP.MeetingParticipantStatus NOT IN (1,2)
+		JOIN (SELECT SysMeetingId, MeetingParticipantStatus, SysParticipantId, Family_Id, Child_Id, MeetingParticipantUserId FROM Live_Meeting_Participants WITH (NOLOCK) WHERE MeetingParticipantUserId = @ParentId) LMP ON LMP.SysMeetingId = M.SysMeetingId -- AND LMP.MeetingParticipantStatus IN (1,2)
 		JOIN User_Details U WITH (NOLOCK) ON U.User_Id = M.CreatedBy    
 		JOIN User_Details H WITH (NOLOCK) ON H.User_Id = M.MeetingHostUserId 
 		JOIN Company_Details C WITH (NOLOCK) ON C.Company_Id = M.Company_Id    
@@ -191,7 +213,6 @@ BEGIN
 		JOIN timezone T WITH (NOLOCK) ON T.timezone_id = M.TimeZoneId    
 		JOIN Live_Meeting_Type L WITH (NOLOCK) ON L.SysMeetingTypeId = M.MeetingTypeId    
 		WHERE LMP.MeetingParticipantUserId = @ParentId  AND
-		M.MeetingsStatus NOT IN (1,2) AND 
 		dbo.StripDateFromTime(M.MeetingEndTime) < dbo.StripDateFromTime(@TransactionDttm)
 	END
 

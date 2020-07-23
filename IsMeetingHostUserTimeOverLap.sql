@@ -19,6 +19,7 @@ BEGIN
 	IF EXISTS (SELECT TOP 1 1 
 				FROM Live_Meetings L WITH (NOLOCK) 
 				WHERE L.MeetingHostUserId = @MeetingHostUserId AND 
+				L.MeetingStatus <= 2 AND
 				@MeetingStartTime BETWEEN L.MeetingStartTime AND L.MeetingEndTime 
 				AND (L.SysMeetingId <> @SysMeetingId OR L.SysMeetingId = 0))
 	BEGIN
@@ -28,6 +29,7 @@ BEGIN
 	IF EXISTS (SELECT TOP 1 1 
 				FROM Live_Meetings L WITH (NOLOCK) 
 				WHERE L.MeetingHostUserId = @MeetingHostUserId AND 
+				L.MeetingStatus <= 2 AND
 				@MeetingEndTime BETWEEN L.MeetingStartTime AND L.MeetingEndTime 
 				AND (L.SysMeetingId <> @SysMeetingId OR L.SysMeetingId = 0))
 	BEGIN

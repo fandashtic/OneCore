@@ -4,7 +4,8 @@
 -- Description: Create new scalar function for collect all Participants details and return as comma seprated string.
 -- Return comma seprated value
 -- ==================================================================================================================================
---select dbo.GetParticipantsByMeetingId(41)
+--select dbo.GetParticipantsByMeetingId(67)
+--SELECT * FROM Live_Meeting_Participants D WITH (NOLOCK) WHERE D.SysMeetingId = 67
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'GetParticipantsByMeetingId')
 BEGIN
     DROP FUNCTION dbo.GetParticipantsByMeetingId
@@ -22,10 +23,17 @@ BEGIN
 		DECLARE @TempParticipants AS TABLE(Id INT Identity(1,1), ParticipantId VARCHAR(1000))
 		
 		INSERT INTO @TempParticipants(ParticipantId)
-		SELECT DISTINCT CAST(D.MeetingParticipantUserId AS VARCHAR) + ':' + CAST(D.Family_Id AS VARCHAR) + ':' + CAST(D.Child_Id AS VARCHAR) + ':' + CAST(D.SysParticipantId AS VARCHAR)
+		SELECT DISTINCT 
+			CAST(D.MeetingParticipantUserId AS VARCHAR) + ';' 
+		  + CAST(D.Family_Id AS VARCHAR) + ';' 
+		  + CAST(D.Child_Id AS VARCHAR) + ';' 
+		  + CAST(D.SysParticipantId AS VARCHAR) + ';' 
+		  + CAST(D.MeetingParticipantStatus AS VARCHAR) + ';' 
+		  + CASE WHEN D.ActualMeetingStartTime IS NULL THEN '' ELSE CAST(D.ActualMeetingStartTime AS VARCHAR) END + ';' 
+		  + CASE WHEN D.ActualMeetingEndTime IS NULL THEN '' ELSE CAST(D.ActualMeetingEndTime AS VARCHAR) END
 		FROM Live_Meeting_Participants D WITH (NOLOCK) 
-		WHERE D.SysMeetingId = @SysMeetingId AND
-		D.MeetingParticipantStatus IN (1, 2, 3, 6)
+		WHERE D.SysMeetingId = @SysMeetingId --AND
+		--D.MeetingParticipantStatus IN (1, 2, 3, 6)
 
 		Declare @Id AS INT
 		SET @Id = 1

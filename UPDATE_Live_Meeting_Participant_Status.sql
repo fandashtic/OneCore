@@ -15,20 +15,47 @@ Create PROC UPDATE_Live_Meeting_Participant_Status
 	@MeetingParticipantStatus TINYINT,
 	@UserId INT,
 	@TransactionDttm DATETIME,
-	@Eqs VARCHAR(4000)
+	@ActualMeetingStartTime DATETIME = null,
+	@ActualMeetingEndTime DATETIME = null,
+	@Eqs VARCHAR(4000) = null
 )
 AS
 BEGIN
 	IF(@SysParticipantId > 0)
 	BEGIN
-		UPDATE L
-		SET 
-			L.MeetingParticipantStatus = @MeetingParticipantStatus,
-			L.Eqs = @Eqs,
-			L.ModifiedBy = @UserId,
-			L.ModifiedDttm = @TransactionDttm
-		FROM Live_Meeting_Participants L WITH (NOLOCK)
-			WHERE L.SysParticipantId = @SysParticipantId
+		IF(@MeetingParticipantStatus = 2) -- Update InProgress Status.
+		BEGIN
+			UPDATE D 
+			SET D.MeetingParticipantStatus = @MeetingParticipantStatus,
+				D.ActualMeetingStartTime = ISNULL(D.ActualMeetingStartTime, @ActualMeetingStartTime),
+				D.Eqs = @Eqs,
+				D.ModifiedBy = @UserId,
+				D.ModifiedDttm = @TransactionDttm
+			FROM Live_Meeting_Participants D WITH (NOLOCK) 
+			WHERE D.SysParticipantId = @SysParticipantId
+		END
+		ELSE IF(@MeetingParticipantStatus = 3) -- Update End Status.
+		BEGIN
+			UPDATE D 
+			SET D.MeetingParticipantStatus = @MeetingParticipantStatus,
+				D.ActualMeetingStartTime = ISNULL(D.ActualMeetingStartTime, @ActualMeetingStartTime),
+				D.ActualMeetingEndTime = @ActualMeetingEndTime,
+				D.Eqs = @Eqs,
+				D.ModifiedBy = @UserId,
+				D.ModifiedDttm = @TransactionDttm
+			FROM Live_Meeting_Participants D WITH (NOLOCK) 
+			WHERE D.SysParticipantId = @SysParticipantId
+		END
+		ELSE
+		BEGIN
+			UPDATE D 
+			SET D.MeetingParticipantStatus = @MeetingParticipantStatus,
+				D.Eqs = @Eqs,
+				D.ModifiedBy = @UserId,
+				D.ModifiedDttm = @TransactionDttm
+			FROM Live_Meeting_Participants D WITH (NOLOCK) 
+			WHERE D.SysParticipantId = @SysParticipantId
+		END
 	END
 END
 GO
