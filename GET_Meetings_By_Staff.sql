@@ -4,9 +4,9 @@
 -- Description: Create new stored procedure to get meetings list by company and center and staff id
 -- Return meetings list
 -- ==============================================================================================
---Exec GET_Meetings_By_Staff 1183, 4, 35833, '2020-07-22 13:33:47.363','2020-07-22 13:33:47.363', 1
---Exec GET_Meetings_By_Staff 1183, 4, 35833, '2020-07-22 13:33:47.363','2020-07-22 13:33:47.363', 2
---Exec GET_Meetings_By_Staff 1183, 4, 35833, '2020-07-22 13:33:47.363','2020-07-22 13:33:47.363', 3
+--Exec GET_Meetings_By_Staff 1154, 47, 55478, '2020-07-23 13:33:47.363','2020-07-23 13:33:47.363', 1
+--Exec GET_Meetings_By_Staff 1154, 47, 55478, '2020-07-23 13:33:47.363','2020-07-23 13:33:47.363', 2
+--Exec GET_Meetings_By_Staff 1154, 47, 55478, '2020-07-23 13:33:47.363','2020-07-23 13:33:47.363', 3
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'GET_Meetings_By_Staff')
 BEGIN
     DROP PROC GET_Meetings_By_Staff

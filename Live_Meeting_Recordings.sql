@@ -5,6 +5,7 @@ END
 GO
 CREATE TABLE Live_Meeting_Recordings
 (
+	SysRecordingId INT IDENTITY(1,1),
 	SysMeetingId INT,
 	Account_Id VARCHAR(255),
 	Duration INT,
@@ -27,6 +28,10 @@ CREATE TABLE Live_Meeting_Recordings
 	Recording_End DATETIME,
 	Recording_Start DATETIME,
 	Recording_Type VARCHAR(50),
-	MeetingStatus VARCHAR(20)
+	MeetingStatus VARCHAR(20),
+	CreatedBy INT NULL,
+	CreatedDttm DATETIME,
+	ModifiedBy INT NULL,
+	ModifiedDttm DATETIME NULL
 )
 GO

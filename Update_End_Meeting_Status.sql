@@ -28,6 +28,6 @@ BEGIN
 		EXEC UPDATE_Live_Meeting_Status @SysMeetingId, @MeetingStatus, @UserId, @TransactionDttm, @ActualMeetingStartTime, @ActualMeetingEndTime
 	END
 
-	SELECT 'Success' [Status], SysMeetingId, MeetingHostUserId, TimeZoneId FROM Live_Meetings L WITH (NOLOCK) WHERE L.Uuid = @Uuid
+	SELECT 'Success' [Status], '' [Error], Company_Id, Center_Id, SysMeetingId, MeetingHostUserId, TimeZoneId FROM Live_Meetings L WITH (NOLOCK) WHERE L.Uuid = @Uuid
 END
 GO

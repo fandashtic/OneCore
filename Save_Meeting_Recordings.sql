@@ -36,7 +36,7 @@ Create PROC Save_Meeting_Recordings
 	@File_Size INT,
 	@File_Type VARCHAR(25),
 	@Recording_Id VARCHAR(255),
-	@Meeting_Td VARCHAR(255),
+	@Meeting_Id VARCHAR(255),
 	@Play_Url VARCHAR(255),
 	@Recording_End DATETIME,
 	@Recording_Start DATETIME,
@@ -70,12 +70,14 @@ BEGIN
 		File_Size,
 		File_Type,
 		Recording_Id,
-		Meeting_Td,
+		Meeting_Id,
 		Play_Url,
 		Recording_End,
 		Recording_Start,
 		Recording_Type,
-		MeetingStatus
+		MeetingStatus,
+		CreatedBy,
+		CreatedDttm
 	)
 
 	SELECT 
@@ -96,11 +98,13 @@ BEGIN
 		@File_Size,
 		@File_Type,
 		@Recording_Id,
-		@Meeting_Td,
+		@Meeting_Id,
 		@Play_Url,
 		@Recording_End,
 		@Recording_Start,
 		@Recording_Type,
-		@Status
+		@Status,
+		0,
+		GETDATE()
 END
 GO

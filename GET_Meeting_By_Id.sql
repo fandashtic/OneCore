@@ -4,7 +4,7 @@
 -- Description: Create new stored procedure to get meetings list by company and center
 -- Return meeting details by id
 -- ==============================================================================================
---Exec GET_Meeting_By_Id 67
+--Exec GET_Meeting_By_Id 137
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'GET_Meeting_By_Id')
 BEGIN
     DROP PROC GET_Meeting_By_Id
@@ -16,7 +16,13 @@ Create PROC GET_Meeting_By_Id
 )  
 AS  
 BEGIN  
-  
+
+	Update M 
+	SET M.ParticipantsCount = dbo.GetParticipantsCountByMeetingId(@SysMeetingId),
+	M.MeetingAttendeesCount = dbo.GetMeetingAttendeesCount(@SysMeetingId)
+	FROM Live_Meetings M WITH (NOLOCK)
+	WHERE SysMeetingId =@SysMeetingId
+
  SELECT DISTINCT  
   M.SysMeetingId,  
   M.SysLiveLicenseId,  

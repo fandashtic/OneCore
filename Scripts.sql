@@ -271,3 +271,14 @@ BEGIN
 	ALTER TABLE Live_Meeting_License ADD MaxMeetingCount INT
 END
 GO
+
+IF NOT EXISTS(SELECT TOP 1 1 FROM sys.columns WHERE Name = N'IsJobExecuted' AND OBJECT_ID = OBJECT_ID(N'Live_Meetings'))
+BEGIN
+	ALTER TABLE Live_Meetings ADD IsJobExecuted BIT
+END
+GO
+IF NOT EXISTS(SELECT TOP 1 1 FROM sys.columns WHERE Name = N'LastJobExecutedOn' AND OBJECT_ID = OBJECT_ID(N'Live_Meetings'))
+BEGIN
+	ALTER TABLE Live_Meetings ADD LastJobExecutedOn DATETIME NULL
+END
+GO
