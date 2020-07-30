@@ -95,3 +95,50 @@ Exec CreateAppJob_AppProcess 'LiveMeetingEndProcess', 'C:\OCO_TEST\OCOJOBS\LiveM
 select * from Live_Meeting_Recordings
 select * from Actual_Meeting_Participants
 --select * from Live_Meetings
+
+select top 1 * from Live_Meeting_Recordings
+select * from app_job
+
+
+select * from app_job_history where app_job_id = 17
+
+select * from app_error_log where app_job_hist_id = 1301
+select * from app_process
+select * from app_job
+
+select * from Live_Meetings Order By SysMeetingId desc
+
+select * from sys.objects where object_id in (select id from syscomments where text like '%Uuid%')
+select * from timezone
+
+select * from Live_Meetings  Where SysMeetingId > 107
+
+
+--Update Live_Meetings Set MeetingStartTime = '2020-07-01 23:30:00', MeetingEndTime = '2020-07-01 23:30:00' Where SysMeetingId <> 102
+
+
+Tools.GetTimeZoneDateTime("Alaskan Standard Time", 
+
+select top 10 * from Center_Details where Center_Name like '%Live%'
+select * from sys.tables where name like '%Live_%'
+select top 10 * from app_module where app_mod_nm like '%live%'
+select top 10 * from App_Module_Functions where FunctionName like '%like%'
+select * from Live_Meeting_Recordings
+select * from Actual_Meeting_Participants
+
+sp_depends Live_Meeting_Recordings
+
+
+
+select * from Live_Meetings Order By SysMeetingId desc
+--Update Live_Meetings Set IsRecordSession = 1, IsJobExecuted = 0,AppJobHistId = null
+select * from Live_License
+select * from Live_Meeting_License
+
+https://us02web.zoom.us/j/6361405650?pwd=QU1PZ1dXajFMbkNCajlsZnZsZHRMdz09
+
+select top 10 * from app_job_history where app_job_id = 74
+select top 10 * from app_error_log  where app_err_method_nm like '%Live%' Order by app_err_log_id desc
+--Delete from app_error_log  where app_err_method_nm like '%Live%' 
+select * from app_process where app_proc_id = 69
+select * from app_job where app_proc_id = 69

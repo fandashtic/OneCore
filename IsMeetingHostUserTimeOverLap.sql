@@ -14,14 +14,18 @@ Returns BIT
 AS  
 BEGIN 
 	DECLARE @IsMeetingHostUserTimeOverLap BIT;
+	DECLARE	@Company_Id INT
+	DECLARE @Center_Id INT
 	SET @IsMeetingHostUserTimeOverLap = 0;
+
+	SELECT @Company_Id = Company_Id, @Center_Id = Center_Id FROM Live_Meetings WITH (NOLOCK) WHERE SysMeetingId = @SysMeetingId
 
 	IF EXISTS (SELECT TOP 1 1 
 				FROM Live_Meetings L WITH (NOLOCK) 
 				WHERE L.MeetingHostUserId = @MeetingHostUserId AND 
 				L.MeetingStatus <= 2 AND
 				@MeetingStartTime BETWEEN L.MeetingStartTime AND L.MeetingEndTime 
-				AND (L.SysMeetingId <> @SysMeetingId OR L.SysMeetingId = 0))
+				AND SysMeetingId <> @SysMeetingId)
 	BEGIN
 		SET @IsMeetingHostUserTimeOverLap = 1;
 	END
@@ -31,7 +35,7 @@ BEGIN
 				WHERE L.MeetingHostUserId = @MeetingHostUserId AND 
 				L.MeetingStatus <= 2 AND
 				@MeetingEndTime BETWEEN L.MeetingStartTime AND L.MeetingEndTime 
-				AND (L.SysMeetingId <> @SysMeetingId OR L.SysMeetingId = 0))
+				AND SysMeetingId <> @SysMeetingId)
 	BEGIN
 		SET @IsMeetingHostUserTimeOverLap = 1;
 	END

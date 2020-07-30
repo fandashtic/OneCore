@@ -4,13 +4,13 @@
 -- Description: Create new scalar function for validate the given participants are already scheduled with any other meeting for the same time.
 -- Return bit value
 -- ===========================================================================================================================================
---select dbo.IsMeetingParticipantsTimeOverLap('356434', '211505', '258041', '2020-07-23T06:24:00.000Z', '2020-07-23T07:24:00.000Z', 0)
+--select dbo.IsMeetingParticipantsTimeOverLap(1183, 4, '313492,327635', '233876,247993', '255836,270983', '2020-07-29 11:12:00.000', '2020-07-29 11:13:00.000', 94)
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'IsMeetingParticipantsTimeOverLap')
 BEGIN
     DROP FUNCTION dbo.IsMeetingParticipantsTimeOverLap
 END
 GO
-Create FUNCTION dbo.IsMeetingParticipantsTimeOverLap(@ParentIds NVARCHAR(1000), @FamilyIds NVARCHAR(1000), @ChildIds NVARCHAR(1000), @MeetingStartTime DATETIME, @MeetingEndTime DATETIME, @SysMeetingId INT = 0)  
+Create FUNCTION dbo.IsMeetingParticipantsTimeOverLap(@Company_Id INT, @Center_Id INT, @ParentIds NVARCHAR(1000), @FamilyIds NVARCHAR(1000), @ChildIds NVARCHAR(1000), @MeetingStartTime DATETIME, @MeetingEndTime DATETIME, @SysMeetingId INT = 0)  
 Returns BIT
 AS  
 BEGIN 
@@ -46,6 +46,7 @@ BEGIN
 		INSERT INTO @TempParticipant_Meetings(SysMeetingId)
 		SELECT DISTINCT SysMeetingId FROM Live_Meeting_Participants L WITH (NOLOCK) 
 		WHERE L.MeetingParticipantUserId = @ParentId AND L.Family_Id = @FamilyId AND L.Child_Id = @ChildId  AND MeetingParticipantStatus In(1, 2)
+		AND Company_Id = @Company_Id AND Center_Id = @Center_Id
 
 		DELETE @TempParticipant_Meetings WHERE SysMeetingId IN(SELECT DISTINCT SysMeetingId FROM Live_Meetings WITH (NOLOCK) WHERE MeetingStatus > 2)
 
@@ -60,7 +61,7 @@ BEGIN
 						FROM Live_Meetings L WITH (NOLOCK) 
 						WHERE L.MeetingStatus <= 2 AND
 						@MeetingStartTime BETWEEN L.MeetingStartTime AND L.MeetingEndTime 
-						AND (L.SysMeetingId <> @SysMeetingId OR L.SysMeetingId = 0))
+						AND SysMeetingId <> @SysMeetingId AND Company_Id = @Company_Id AND Center_Id = @Center_Id)
 			BEGIN
 				SET @IsMeetingParticipantsTimeOverLap = 1;
 				BREAK; 
@@ -70,7 +71,7 @@ BEGIN
 						FROM Live_Meetings L WITH (NOLOCK) 
 						WHERE L.MeetingStatus <= 2 AND
 						@MeetingEndTime BETWEEN L.MeetingStartTime AND L.MeetingEndTime 
-						AND (L.SysMeetingId <> @SysMeetingId OR L.SysMeetingId = 0))						
+						AND SysMeetingId <> @SysMeetingId AND Company_Id = @Company_Id AND Center_Id = @Center_Id)						
 			BEGIN
 				SET @IsMeetingParticipantsTimeOverLap = 1;
 				BREAK; 

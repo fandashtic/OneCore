@@ -4,7 +4,13 @@
 -- Description: Create new stored procedure for add / update the meeting details and participants
 -- Return meeting id  as INT
 -- ===============================================================================================
---Exec SAVE_Live_Meeting 1046, 1, 247, 'DBS', 7, '6/17/2020 2:04:00 AM', '6/17/2020 4:06:00 AM', 1, 'SFG', '92436', '132716', '162449',  0, 1, 0, 0, '6/17/2020 10:52:00', 0
+/*
+Exec SAVE_Live_Meeting 1183, 4, 35709, '29-07 Meeting', 6, '28-Jul-2020 22:42:00', '28-Jul-2020 22:43:00', 1, 'sadf', '331657,321548,327611,327626,313492,327635',
+'252015,241920,247971,247985,233876,247993', '342394,262900,270958,270974,255836,270983', '85600068749', 
+'https://us02web.zoom.us/s/85600068749?zak=eyJ6bV9za20iOiJ6bV9vMm0iLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjbGllbnQiLCJ1aWQiOiJ6MDZ0dDhXYlFkcWItUEUyX1JleGt3IiwiaXNzIjoid2ViIiwic3R5IjoxMDAsIndjZCI6InVzMDIiLCJjbHQiOjAsInN0ayI6IjdQUEFVR0JqZnFKb3RnM2kzWEcxWkJZWFpsZlByT09qeVc2TmhLb1pZV28uQmdVc01IZEJNVkEwYlZWdFNrMXVjVXAyTDBjNFJtSnJXbkp2WTNGeVNEaFFVVXROUmpac1NFNXdXV2Q0UVQxQVlqZGlNR0prT0RGaVpERmtNRGd5T1RnM1pHWXlaVEl4TUdJd01HWTNOR1ZpWXpZMlpqZzNPV0UzWVRreE1qWXhaR1ZqTldVellqWXlNRFprWWpNelpRQWdOMmw2YUZoNFFWZ3hSVnBqVFZocVIxRjVRVFl6WTFWWmJVdDZSRlZPZFhFQUJIVnpNREkiLCJleHAiOjE1OTU5NTA0NzEsImlhdCI6MTU5NTk0MzI3MSwiYWlkIjoiV1p2MHdGT1ZUNmFrQjJrV25mM2pSQSIsImNpZCI6IiJ9.a-z7TMLatKgeqGBRH4-bBZnCOrgwQNMFoSomTa8WHMg',
+'https://us02web.zoom.us/j/85600068749', 'iWnOYo6FTsCScKEN2r/+Cg==',
+0,0,0,1, 35709, '6/17/2020 10:52:00', 94
+*/
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'SAVE_Live_Meeting')
 BEGIN
     DROP PROC SAVE_Live_Meeting
@@ -38,7 +44,7 @@ Create PROC SAVE_Live_Meeting
 )
 AS
 BEGIN
-	
+	--set dateformat dmy
 	DECLARE @SysLiveLicenseId INT;
 	DECLARE @SysLiveMeetingLicenseId INT;
 	DECLARE @IsMeetingHostUserTimeOverLap BIT;
@@ -53,8 +59,8 @@ BEGIN
 	SET @IsMeetingHostUserTimeOverLap = dbo.IsMeetingHostUserTimeOverLap(@MeetingHostUserId, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
 
 	-- Is any meeting participants time Overlap
-	SET @IsMeetingParticipantsTimeOverLap = dbo.IsMeetingParticipantsTimeOverLap(@ParentIds, @FamilyIds, @ChildIds, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
-	
+	SET @IsMeetingParticipantsTimeOverLap = dbo.IsMeetingParticipantsTimeOverLap(@Company_Id, @Center_Id, @ParentIds, @FamilyIds, @ChildIds, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
+
 	IF(@IsMeetingHostUserTimeOverLap = 0 AND @IsMeetingParticipantsTimeOverLap = 0)
 	BEGIN
 
@@ -65,8 +71,12 @@ BEGIN
 
 		IF(@SysMeetingId = 0)
 		BEGIN
-			SET @SysLiveLicenseId = 0
+			SET @SysLiveLicenseId = 1
 			SET @SysLiveMeetingLicenseId = 0
+		END
+		ELSE
+		BEGIN
+			SELECT @SysLiveLicenseId = SysLiveLicenseId, @SysLiveMeetingLicenseId = SysLiveMeetingLicenseId FROM Live_Meetings WITH (NOLOCK) WHERE [SysMeetingId] = @SysMeetingId
 		END
 
 		IF(@SysMeetingId = 0 AND @SysLiveLicenseId = 0)
@@ -78,7 +88,7 @@ BEGIN
 		BEGIN
 			SET @SysLiveMeetingLicenseId = dbo.Get_Availalbe_Live_Meeting_License(@SysLiveLicenseId, @MeetingStartTime, @MeetingEndTime)
 		END
-		
+
 		IF(@SysLiveLicenseId > 0 AND @SysLiveMeetingLicenseId > 0 AND @MeetingTypeId > 0)
 		BEGIN
 			--Delete All Existing Participants for the meeting id.
@@ -95,6 +105,7 @@ BEGIN
 					L.MeetingHostUserId = @MeetingHostUserId,
 					L.MeetingName = @MeetingName,
 					L.TimeZoneId = @TimeZoneId,
+					L.MeetingDate = @MeetingStartTime,
 					L.MeetingStartTime = @MeetingStartTime,
 					L.MeetingEndTime = @MeetingEndTime,
 					L.MeetingTypeId = @MeetingTypeId,
@@ -122,6 +133,7 @@ BEGIN
 					[MeetingHostUserId],
 					[MeetingName],
 					[TimeZoneId],
+					[MeetingDate],
 					[MeetingStartTime],
 					[MeetingEndTime],
 					[MeetingTypeId],

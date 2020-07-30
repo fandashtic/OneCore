@@ -57,5 +57,13 @@ BEGIN
 			WHERE D.SysParticipantId = @SysParticipantId
 		END
 	END
+
+	Update M 
+	SET M.ParticipantsCount = dbo.GetParticipantsCountByMeetingId(M.SysMeetingId),
+	M.MeetingAttendeesCount = dbo.GetMeetingAttendeesCount(M.SysMeetingId)
+	FROM Live_Meetings M WITH (NOLOCK)
+	JOIN Live_Meeting_Participants LP WITH (NOLOCK) ON LP.SysMeetingId = M.SysMeetingId
+	WHERE LP.SysParticipantId = @SysParticipantId
+
 END
 GO

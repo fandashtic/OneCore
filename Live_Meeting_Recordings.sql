@@ -6,6 +6,8 @@ GO
 CREATE TABLE Live_Meeting_Recordings
 (
 	SysRecordingId INT IDENTITY(1,1),
+	Company_Id INT,
+	Center_Id INT,
 	SysMeetingId INT,
 	Account_Id VARCHAR(255),
 	Duration INT,

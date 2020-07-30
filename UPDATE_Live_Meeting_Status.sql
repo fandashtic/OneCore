@@ -39,16 +39,25 @@ BEGIN
 		END
 		ELSE
 		BEGIN
-			IF(@MeetingStatus <> 2)
+			IF(@MeetingStatus = 6) -- Update End Status.
 			BEGIN
 				UPDATE D 
 				SET D.MeetingParticipantStatus = @MeetingStatus,
-					D.ModifiedBy = @UserId,
 					D.ModifiedDttm = @TransactionDttm
 				FROM Live_Meeting_Participants D WITH (NOLOCK) 
 				WHERE D.SysMeetingId = @SysMeetingId
+				AND D.MeetingParticipantStatus = 1
 			END
-		END
+			ELSE IF(@MeetingStatus <> 2)
+				BEGIN
+					UPDATE D 
+					SET D.MeetingParticipantStatus = @MeetingStatus,
+						D.ModifiedBy = @UserId,
+						D.ModifiedDttm = @TransactionDttm
+					FROM Live_Meeting_Participants D WITH (NOLOCK) 
+					WHERE D.SysMeetingId = @SysMeetingId
+				END
+			END
 
 		UPDATE L
 		SET 

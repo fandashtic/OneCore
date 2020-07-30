@@ -4,7 +4,7 @@
 -- Description: Create new stored procedure to get meeting recording details by meeting id.
 -- Return schedule meeting details
 -- ==============================================================================================
---Exec Get_Meeting_Recordings_By_MeetingId 69
+--Exec Get_Meeting_Recordings_By_MeetingId 137
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'Get_Meeting_Recordings_By_MeetingId')
 BEGIN
     DROP PROC Get_Meeting_Recordings_By_MeetingId

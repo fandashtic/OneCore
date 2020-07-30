@@ -4,7 +4,7 @@
 -- Description: Create new stored procedure for add / update the meeting participants
 -- Return meeting id  as INT
 -- ===============================================================================================
---Exec Update_Participants 41, '92436', '132716', '162449', 1, '6/17/2020 10:52:00'
+--Exec Update_Participants 94, '313492,327635', '233876,247993', '255836,270983', 35709, '7/28/2020 11:55:21 AM'
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'Update_Participants')
 BEGIN
     DROP PROC Update_Participants
@@ -33,20 +33,16 @@ BEGIN
 	SET @IsMeetingHostUserTimeOverLap = 0;
 	SET @IsMeetingParticipantsTimeOverLap = 0;
 	SET @Error = '';
-	SELECT @MeetingStartTime = MeetingStartTime , @MeetingEndTime = MeetingEndTime FROM Live_Meetings WITH (NOLOCK) WHERE SysMeetingId = @SysMeetingId
-	
-	-- Is meeting host user time overlap
-	--SET @IsMeetingHostUserTimeOverLap = dbo.IsMeetingHostUserTimeOverLap(@MeetingHostUserId, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
 
+	SELECT @Company_Id = Company_Id, @Center_Id = Center_Id, @MeetingStartTime = MeetingStartTime , @MeetingEndTime = MeetingEndTime FROM Live_Meetings WITH (NOLOCK) WHERE SysMeetingId = @SysMeetingId
+	
 	-- Is any meeting participants time Overlap
-	SET @IsMeetingParticipantsTimeOverLap = dbo.IsMeetingParticipantsTimeOverLap(@ParentIds, @FamilyIds, @ChildIds, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
+	SET @IsMeetingParticipantsTimeOverLap = dbo.IsMeetingParticipantsTimeOverLap(@Company_Id,@Center_Id, @ParentIds, @FamilyIds, @ChildIds, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
 	
 	IF(@IsMeetingHostUserTimeOverLap = 0 AND @IsMeetingParticipantsTimeOverLap = 0)
 	BEGIN
 		--Delete All Existing Participants for the meeting id.
 		DELETE D FROM Live_Meeting_Participants D WITH (NOLOCK) WHERE D.SysMeetingId = @SysMeetingId
-
-		SELECT @Company_Id = Company_Id, @Center_Id = Center_Id FROM Live_Meetings D WITH (NOLOCK) WHERE D.SysMeetingId = @SysMeetingId
 
 		IF (@SysMeetingId > 0 AND @ParentIds <> '')
 		BEGIN

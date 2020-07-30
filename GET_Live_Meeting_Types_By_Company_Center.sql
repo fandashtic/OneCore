@@ -41,7 +41,11 @@ BEGIN
 		T.ModifiedDttm,
 		T.ModifiedBy,
 		T.CreatedBy,
-		T.CreatedDttm
+		T.CreatedDttm,
+		T.IsSendReminderHost,
+		T.IsSendReminderParticipants,
+		T.IsRecordSession,
+		T.AppLiveMeetingId
 	FROM Live_Meeting_Type T WITH (NOLOCK)
 	WHERE (T.Company_Id = @Company_Id OR T.Company_Id = 1) AND
 	(T.Center_Id = @Center_Id OR T.Center_Id = 1)

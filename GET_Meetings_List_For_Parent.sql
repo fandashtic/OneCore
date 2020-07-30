@@ -24,7 +24,7 @@ BEGIN
 
 	SET DATEFORMAT DMY
 
-	IF(@MeetingRequestType = 1)
+	IF(@MeetingRequestType = 1 AND EXISTS(SELECT TOP 1 1 FROM sponsor_details S WITH (NOLOCK) WHERE S.sponsor_id = @ParentId AND S.PP_status = 1))
 	BEGIN
 		SELECT DISTINCT    
 		M.SysMeetingId,    
@@ -88,7 +88,7 @@ BEGIN
 		(dbo.StripDateFromTime(M.MeetingStartTime) = dbo.StripDateFromTime(@TransactionDttm) OR dbo.StripDateFromTime(M.MeetingEndTime) = dbo.StripDateFromTime(@TransactionDttm))
 	END
 
-	IF(@MeetingRequestType = 2)
+	IF(@MeetingRequestType = 2 AND EXISTS(SELECT TOP 1 1 FROM sponsor_details S WITH (NOLOCK) WHERE S.sponsor_id = @ParentId AND S.PP_status = 1))
 	BEGIN
 		SELECT DISTINCT    
 		M.SysMeetingId,    

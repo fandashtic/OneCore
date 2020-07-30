@@ -27,6 +27,8 @@ BEGIN
 			M.SysMeetingId,
 			M.SysLiveLicenseId,
 			M.SysLiveMeetingLicenseId,
+			M.SysVirtualClassroomId,
+			M.SysVcScheduleId,
 			M.SysVcEnrollmentId,
 			M.Company_Id,
 			M.Center_Id,
@@ -82,6 +84,7 @@ BEGIN
 		JOIN timezone T WITH (NOLOCK) ON T.timezone_id = M.TimeZoneId
 		JOIN Live_Meeting_Type L WITH (NOLOCK) ON L.SysMeetingTypeId = M.MeetingTypeId
 		WHERE (M.Company_Id = @Company_Id OR M.Company_Id = 0) AND
+		ISNULL(M.SysVirtualClassroomId, 0) = 0 AND
 		(M.Center_Id = @Center_Id OR M.Center_Id = 0) AND
 		(dbo.StripDateFromTime(M.MeetingStartTime) = dbo.StripDateFromTime(@TransactionDttm) OR dbo.StripDateFromTime(M.MeetingEndTime) = dbo.StripDateFromTime(@TransactionDttm))
 		Order By M.MeetingStartTime ASC
@@ -93,6 +96,8 @@ BEGIN
 			M.SysMeetingId,
 			M.SysLiveLicenseId,
 			M.SysLiveMeetingLicenseId,
+			M.SysVirtualClassroomId,
+			M.SysVcScheduleId,
 			M.SysVcEnrollmentId,
 			M.Company_Id,
 			M.Center_Id,
@@ -148,6 +153,7 @@ BEGIN
 		JOIN timezone T WITH (NOLOCK) ON T.timezone_id = M.TimeZoneId
 		JOIN Live_Meeting_Type L WITH (NOLOCK) ON L.SysMeetingTypeId = M.MeetingTypeId
 		WHERE (M.Company_Id = @Company_Id OR M.Company_Id = 0) AND
+		ISNULL(M.SysVirtualClassroomId, 0) = 0 AND
 		(M.Center_Id = @Center_Id OR M.Center_Id = 0) AND
 		dbo.StripDateFromTime(M.MeetingStartTime) > dbo.StripDateFromTime(@TransactionDttm)
 		Order By M.MeetingStartTime ASC
@@ -159,6 +165,8 @@ BEGIN
 			M.SysMeetingId,
 			M.SysLiveLicenseId,
 			M.SysLiveMeetingLicenseId,
+			M.SysVirtualClassroomId,
+			M.SysVcScheduleId,
 			M.SysVcEnrollmentId,
 			M.Company_Id,
 			M.Center_Id,
@@ -214,6 +222,7 @@ BEGIN
 		JOIN timezone T WITH (NOLOCK) ON T.timezone_id = M.TimeZoneId
 		JOIN Live_Meeting_Type L WITH (NOLOCK) ON L.SysMeetingTypeId = M.MeetingTypeId
 		WHERE (M.Company_Id = @Company_Id OR M.Company_Id = 0) AND
+		ISNULL(M.SysVirtualClassroomId, 0) = 0 AND
 		(M.Center_Id = @Center_Id OR M.Center_Id = 0) AND
 		dbo.StripDateFromTime(M.MeetingEndTime) < dbo.StripDateFromTime(@TransactionDttm)
 		Order By M.MeetingStartTime ASC

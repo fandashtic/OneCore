@@ -51,7 +51,11 @@ BEGIN
 				IsWhiteboard,
 				MeetingTypeStatus,
 				CreatedBy,
-				CreatedDttm
+				CreatedDttm,
+				IsSendReminderHost,
+				IsSendReminderParticipants,
+				IsRecordSession,
+				AppLiveMeetingId
 			)
 			SELECT 
 				MeetingTypeName,
@@ -73,7 +77,11 @@ BEGIN
 				IsWhiteboard,
 				MeetingTypeStatus,
 				@UserId,
-				@TransactionDttm
+				@TransactionDttm,
+				IsSendReminderHost,
+				IsSendReminderParticipants,
+				IsRecordSession,
+				SysMeetingTypeId
 		FROM App_Live_Meeting_Type L WITH (NOLOCK)
 		WHERE L.MeetingTypeStatus = 1
 	END

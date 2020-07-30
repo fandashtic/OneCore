@@ -4,6 +4,7 @@
 -- Description: Create new scalar function for get available meeting licence id.
 -- Return live meeting license id
 -- ==================================================================================================================================
+--select dbo.Get_Availalbe_Live_Meeting_License(0, '7/28/2020 10:42:00 PM', '7/28/2020 10:43:00 PM')
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'Get_Availalbe_Live_Meeting_License')
 BEGIN
     DROP FUNCTION dbo.Get_Availalbe_Live_Meeting_License
