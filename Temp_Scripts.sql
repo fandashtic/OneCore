@@ -128,7 +128,7 @@ select * from Actual_Meeting_Participants
 
 sp_depends Live_Meeting_Recordings
 
-
+--Exec CreateAppJob_AppProcess 'LiveMeetingEndProcess', 'C:\OCO_TEST\OCOJOBS\LiveMeetingJob\LiveMeetingJob.exe', 1, 'Hourly', 30
 
 select * from Live_Meetings Order By SysMeetingId desc
 --Update Live_Meetings Set IsRecordSession = 1, IsJobExecuted = 0,AppJobHistId = null
@@ -142,3 +142,37 @@ select top 10 * from app_error_log  where app_err_method_nm like '%Live%' Order 
 --Delete from app_error_log  where app_err_method_nm like '%Live%' 
 select * from app_process where app_proc_id = 69
 select * from app_job where app_proc_id = 69
+
+Tools.GetTimeZoneDateTime("Alaskan Standard Time", 
+Tools.GetTimeZoneDateTime("UTC",
+
+select * from timezone
+
+
+meetingStartTime.ToUniversalTime()
+TimeZoneInfo.ConvertTimeToUtc(meetingStartTime)
+
+TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+TimeZoneInfo.ConvertTimeToUtc(date1, tz);
+
+
+                    TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
+                    meetingStartTime = TimeZoneInfo.ConvertTimeToUtc(meetingStartTime, tz);
+                    meetingEndTime = TimeZoneInfo.ConvertTimeToUtc(meetingEndTime, tz);
+
+select len('asdfsdfsdafdsfdsafdsfdsafdafdsafdsfasfasdfadsfsdfadsfdsfdasfasdfdsfdsfdsafdsafsdafsdfdsfdsafdsasdfsdfdsfsadsdfsdasdfdassdfsdfasdadfdsafdsafdsfdsfdsfsadfsdafsdfdsafsdfsdafsdfsdasdafdsaffsadfsdafsdsadfdsafsdafsdfdsfsdfsdfdasfdsafdsfsdasdafsdafdsafdsafsasdsd')
+
+  select * FROM Live_Meetings M WITH (NOLOCK) order by SysMeetingId desc
+   select * from Live_Meeting_Participants Where SysMeetingId = 217
+
+   Update Live_Meetings set IsRecordSession = 1 Where SysMeetingId = 217
+
+select * from Live_Meeting_Recordings
+sp_helptext GET_Meetings_List_For_Parent
+
+
+select * from OCO_TPD_LOG where --request_id > 5633 
+--ANd 
+request_method_nm like '%/Meeting%'
+--and request_text like '%Meeting on 30-07 - 1%'
+order by request_start_dttm desc

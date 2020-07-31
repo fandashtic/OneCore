@@ -99,3 +99,20 @@ Select * from Live_Meetings
 select * from Live_Meeting_Participants
 
 */
+
+
+select * from Live_Meeting_License
+--Truncate Table Live_Meeting_License
+
+INSERT INTO Live_Meeting_License([SysLiveLicenseId], [Company_Id],	[Center_Id], [LiveUserId], [LiveUserName], [LiveMeetingId], [LiveMeetingPassword], [MeetingLicenseStatus], [CreatedBy], [CreatedDttm])
+SELECT 1, 1,	1, '129872078', 'swamivenkat@1coresolution.com', '6361405650', '5Jgyqh', 1, 1, Getdate()
+
+INSERT INTO Live_Meeting_License([SysLiveLicenseId], [Company_Id],	[Center_Id], [LiveUserId], [LiveUserName], [LiveMeetingId], [LiveMeetingPassword], [MeetingLicenseStatus], [CreatedBy], [CreatedDttm])
+SELECT 1, 1822,	1, '129872078', 'kartheesan.j@busofttech.com', '9745155513 ', '5Jgyqh', 1, 1, Getdate()
+
+INSERT INTO Live_Meeting_License([SysLiveLicenseId], [Company_Id],	[Center_Id], [LiveUserId], [LiveUserName], [LiveMeetingId], [LiveMeetingPassword], [MeetingLicenseStatus], [CreatedBy], [CreatedDttm])
+SELECT 1, 1825,	1, '129872078', 'kartheesan.j@busofttech.com', '9745155513 ', '5Jgyqh', 1, 1, Getdate()
+
+INSERT INTO Live_Meeting_License([SysLiveLicenseId], [Company_Id],	[Center_Id], [LiveUserId], [LiveUserName], [LiveMeetingId], [LiveMeetingPassword], [MeetingLicenseStatus], [CreatedBy], [CreatedDttm])
+SELECT 1, 1154,	1, '129872078', 'kartheesan.j@busofttech.com', '9745155513 ', '5Jgyqh', 1, 1, Getdate()
+
