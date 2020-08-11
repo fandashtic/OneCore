@@ -4,7 +4,7 @@
 -- Description: Create new stored procedure to get meetings list by company and center
 -- Return meeting details by id
 -- ==============================================================================================
---Exec GET_Meeting_By_Id 81
+--Exec GET_Meeting_By_Id 136706
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'GET_Meeting_By_Id')
 BEGIN
     DROP PROC GET_Meeting_By_Id
@@ -12,8 +12,8 @@ END
 GO
 Create PROC GET_Meeting_By_Id  
 (   
- @SysMeetingId INT
-)  
+	@SysMeetingId INT
+)
 AS  
 BEGIN  
 
@@ -27,12 +27,13 @@ BEGIN
 	  M.SysMeetingId,  
 	  M.SysLiveLicenseId,  
 	  M.SysLiveMeetingLicenseId,
-	  M.SysVcEnrollmentId,
 	  M.Company_Id,  
 	  M.Center_Id,  
 	  M.MeetingHostUserId,  
 	  H.FirstName [MeetingHostFirstName],  
 	  H.LastName [MeetingHostLastName],  
+	  S.FirstName [StaffFirstName],  
+	  S.LastName [StaffLastName], 
 	  M.MeetingName,  
 	  M.TimeZoneId,  
 	  T.TimeZoneInfoId [TimeZoneName],  
@@ -70,8 +71,9 @@ BEGIN
 	  M.ModifiedDttm,
 	  0 SysParticipantId
 	 FROM Live_Meetings M WITH (NOLOCK)   
-	 JOIN User_Details U WITH (NOLOCK) ON U.User_Id = M.CreatedBy  
-	 JOIN User_Details H WITH (NOLOCK) ON H.User_Id = M.MeetingHostUserId  
+	 LEFT JOIN User_Details U WITH (NOLOCK) ON U.User_Id = M.CreatedBy  
+	 LEFT JOIN User_Details H WITH (NOLOCK) ON H.User_Id = M.MeetingHostUserId  
+	 LEFT JOIN User_Details S WITH (NOLOCK) ON S.User_Id = M.MeetingHostUserId  
 	 --JOIN User_Details MU WITH (NOLOCK) ON (MU.User_Id = M.ModifiedBy OR MU.User_Id = 0)  
 	 JOIN Company_Details C WITH (NOLOCK) ON C.Company_Id = M.Company_Id  
 	 JOIN Center_Details CE WITH (NOLOCK) ON CE.Company_Id = M.Company_Id AND CE.Center_ID = M.Center_Id  

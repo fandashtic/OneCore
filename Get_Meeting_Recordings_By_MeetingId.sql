@@ -31,7 +31,8 @@ BEGIN
 		Play_Url,
 		Recording_End,
 		Recording_Start,
-		Recording_Type		
+		Recording_Type,
+		[Password]
 	FROM Live_Meeting_Recordings R WITH (NOLOCK)
 	JOIN Live_Meetings M ON M.SysMeetingId = R.SysMeetingId
 	WHERE R.SysMeetingId = @SysMeetingId

@@ -1,7 +1,7 @@
 -- app_config
 IF EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 80)
 BEGIN
-	DELETE FROM app_config WITH (NOLOCK) WHERE AppConfigId = 80 
+	DELETE FROM app_config WHERE AppConfigId = 80 
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 80)
@@ -12,7 +12,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 80)
 BEGIN
-	DELETE FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 80
+	DELETE FROM app_config_beta WHERE AppConfigId = 80
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 80)
@@ -23,7 +23,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 81)
 BEGIN
-	DELETE FROM app_config WITH (NOLOCK) WHERE AppConfigId = 81
+	DELETE FROM app_config WHERE AppConfigId = 81
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 81)
@@ -34,7 +34,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 81)
 BEGIN
-	DELETE FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 81
+	DELETE FROM app_config_beta WHERE AppConfigId = 81
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 81)
@@ -45,7 +45,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 82)
 BEGIN
-	DELETE FROM app_config WITH (NOLOCK) WHERE AppConfigId = 82
+	DELETE FROM app_config WHERE AppConfigId = 82
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 82)
@@ -56,7 +56,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 82)
 BEGIN
-	DELETE FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 82
+	DELETE FROM app_config_beta WHERE AppConfigId = 82
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 82)
@@ -67,7 +67,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 83)
 BEGIN
-	DELETE FROM app_config WITH (NOLOCK) WHERE AppConfigId = 83 
+	DELETE FROM app_config WHERE AppConfigId = 83 
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 83)
@@ -78,7 +78,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 83)
 BEGIN
-	DELETE FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 83
+	DELETE FROM app_config_beta WHERE AppConfigId = 83
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 83)
@@ -89,7 +89,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 85)
 BEGIN
-	DELETE FROM app_config WITH (NOLOCK) WHERE AppConfigId = 85
+	DELETE FROM app_config WHERE AppConfigId = 85
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 85)
@@ -100,7 +100,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 85)
 BEGIN
-	DELETE FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 85
+	DELETE FROM app_config_beta WHERE AppConfigId = 85
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 85)
@@ -111,7 +111,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 86)
 BEGIN
-	DELETE FROM app_config WITH (NOLOCK) WHERE AppConfigId = 86
+	DELETE FROM app_config WHERE AppConfigId = 86
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 86)
@@ -122,7 +122,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 86)
 BEGIN
-	DELETE FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 86
+	DELETE FROM app_config_beta WHERE AppConfigId = 86
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 86)
@@ -133,7 +133,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 87)
 BEGIN
-	DELETE FROM app_config WITH (NOLOCK) WHERE AppConfigId = 87
+	DELETE FROM app_config WHERE AppConfigId = 87
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 87)
@@ -144,7 +144,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 87)
 BEGIN
-	DELETE FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 87
+	DELETE FROM app_config_beta WHERE AppConfigId = 87
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 87)
@@ -155,7 +155,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 88)
 BEGIN
-	DELETE FROM app_config WITH (NOLOCK) WHERE AppConfigId = 88
+	DELETE FROM app_config WHERE AppConfigId = 88
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 88)
@@ -166,7 +166,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 88)
 BEGIN
-	DELETE FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 88
+	DELETE FROM app_config_beta WHERE AppConfigId = 88
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 88)
@@ -188,7 +188,7 @@ GO
 
 IF EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 89)
 BEGIN
-	DELETE FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 89
+	DELETE FROM app_config_beta WHERE AppConfigId = 89
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 89)
@@ -232,7 +232,7 @@ GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Meetings_By_Company_Center')
 BEGIN
 	INSERT INTO Pii_Elements (ElementName, Parameters)
-	SELECT 'GET_Meetings_By_Company_Center', '{"InputColumnNames":null,"OutputParamaters":   [{"TableIndex":0,"OutputColumnNames":["MeetingHostFirstName" ,"MeetingHostLastName" , "CreatedByFirstName", "CreatedByLastName", "ModifiedByFirstName", "ModifiedByLastName"]}]}'
+	SELECT 'GET_Meetings_By_Company_Center', '{"InputColumnNames":null,"OutputParamaters":   [{"TableIndex":0,"OutputColumnNames":["MeetingHostFirstName", "MeetingHostLastName", "StaffFirstName", "StaffLastName", "CreatedByFirstName", "CreatedByLastName", "ModifiedByFirstName", "ModifiedByLastName"]}]}'
 END
 GO
 
@@ -244,7 +244,7 @@ GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Meeting_By_Id')
 BEGIN
 	INSERT INTO Pii_Elements (ElementName, Parameters)
-	SELECT 'GET_Meeting_By_Id', '{"InputColumnNames":null,"OutputParamaters":   [{"TableIndex":0,"OutputColumnNames":["MeetingHostFirstName" ,"MeetingHostLastName" , "CreatedByFirstName", "CreatedByLastName", "ModifiedByFirstName", "ModifiedByLastName"]}]}'
+	SELECT 'GET_Meeting_By_Id', '{"InputColumnNames":null,"OutputParamaters":   [{"TableIndex":0,"OutputColumnNames":["MeetingHostFirstName", "MeetingHostLastName", "StaffFirstName", "StaffLastName", "CreatedByFirstName", "CreatedByLastName", "ModifiedByFirstName", "ModifiedByLastName"]}]}'
 END
 GO
 
@@ -256,7 +256,7 @@ GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Meetings_List_For_Parent')
 BEGIN
 	INSERT INTO Pii_Elements (ElementName, Parameters)
-	SELECT 'GET_Meetings_List_For_Parent', '{"InputColumnNames":null,"OutputParamaters":   [{"TableIndex":0,"OutputColumnNames":["MeetingHostFirstName" ,"MeetingHostLastName" , "CreatedByFirstName", "CreatedByLastName", "ModifiedByFirstName", "ModifiedByLastName", "Child_First_Name", "Child_Last_Name"]}]}'
+	SELECT 'GET_Meetings_List_For_Parent', '{"InputColumnNames":null,"OutputParamaters":   [{"TableIndex":0,"OutputColumnNames":["MeetingHostFirstName", "MeetingHostLastName", "CreatedByFirstName", "CreatedByLastName", "ModifiedByFirstName", "ModifiedByLastName", "Child_First_Name", "Child_Last_Name"]},{"TableIndex":2,"OutputColumnNames":["Child_FirstName", "Child_LastName"]}]}'
 END
 GO
 
@@ -272,10 +272,15 @@ BEGIN
 END
 GO
 
+IF EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Meetings_By_Staff')
+BEGIN
+	DELETE FROM Pii_Elements WHERE ElementName = 'GET_Meetings_By_Staff'
+END
+GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM Pii_Elements WHERE ElementName = 'GET_Meetings_By_Staff')
 BEGIN
 	INSERT INTO Pii_Elements (ElementName, Parameters)
-	SELECT 'GET_Meetings_By_Staff', '{"InputColumnNames":null,"OutputParamaters":   [{"TableIndex":0,"OutputColumnNames":["MeetingHostFirstName" ,"MeetingHostLastName" , "CreatedByFirstName", "CreatedByLastName", "ModifiedByFirstName", "ModifiedByLastName"]}]}'
+	SELECT 'GET_Meetings_By_Staff', '{"InputColumnNames":null,"OutputParamaters":   [{"TableIndex":0,"OutputColumnNames":["MeetingHostFirstName", "MeetingHostLastName", "StaffFirstName", "StaffLastName", "CreatedByFirstName", "CreatedByLastName", "ModifiedByFirstName", "ModifiedByLastName"]}]}'
 END
 GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM sys.columns WHERE Name = N'OneCoreUserId' AND OBJECT_ID = OBJECT_ID(N'Live_Meeting_License'))
@@ -453,5 +458,34 @@ GO
 IF NOT EXISTS(SELECT TOP 1 1 FROM sys.columns WHERE Name = N'MeetingDate' AND OBJECT_ID = OBJECT_ID(N'Live_Meetings'))
 BEGIN
 	ALTER TABLE Live_Meetings ADD MeetingDate DATE NULL
+END
+GO
+
+--05-Aug-2020 Changes
+IF NOT EXISTS(SELECT TOP 1 1 FROM sys.columns WHERE Name = N'Password' AND OBJECT_ID = OBJECT_ID(N'Live_Meeting_Recordings'))
+BEGIN
+	ALTER TABLE Live_Meeting_Recordings ADD Password VARCHAR(10)
+END
+GO
+
+IF EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 92)
+BEGIN
+	DELETE FROM app_config WHERE AppConfigId = 92
+END
+GO
+IF NOT EXISTS(SELECT TOP 1 1 FROM app_config WITH (NOLOCK) WHERE AppConfigId = 92)
+BEGIN
+	INSERT INTO app_config (AppConfigId, Value , Description) values (92, 'https://api.zoom.us/v2/meetings/[MEETINGID]/recordings/settings', 'Meeting Recording Settings URL')
+END
+GO
+
+IF EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 92)
+BEGIN
+	DELETE FROM app_config_beta WHERE AppConfigId = 92
+END
+GO
+IF NOT EXISTS(SELECT TOP 1 1 FROM app_config_beta WITH (NOLOCK) WHERE AppConfigId = 82)
+BEGIN
+	INSERT INTO app_config_beta (AppConfigId, Value , Description) values (82, 'https://api.zoom.us/v2/meetings/[MEETINGID]/recordings/settings', 'Meeting Recording Settings URL')
 END
 GO

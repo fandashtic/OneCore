@@ -11,7 +11,7 @@ END
 GO
 Create PROC Update_End_Meeting_Status
 (
-	@Uuid VARCHAR(1000),
+	@MeetingId VARCHAR(1000),
 	@MeetingStatus TINYINT,
 	@UserId INT,
 	@TransactionDttm DATETIME,
@@ -21,13 +21,13 @@ Create PROC Update_End_Meeting_Status
 AS
 BEGIN
 	DECLARE @SysMeetingId INT = 0
-	SELECT @SysMeetingId = SysMeetingId FROM Live_Meetings L WITH (NOLOCK) WHERE L.Uuid = @Uuid
+	SELECT @SysMeetingId = SysMeetingId FROM Live_Meetings L WITH (NOLOCK) WHERE L.MeetingId = @MeetingId
 
 	IF(@SysMeetingId > 0)
 	BEGIN		
 		EXEC UPDATE_Live_Meeting_Status @SysMeetingId, @MeetingStatus, @UserId, @TransactionDttm, @ActualMeetingStartTime, @ActualMeetingEndTime
 	END
 
-	SELECT 'Success' [Status], '' [Error], Company_Id, Center_Id, SysMeetingId, MeetingHostUserId, TimeZoneId FROM Live_Meetings L WITH (NOLOCK) WHERE L.Uuid = @Uuid
+	SELECT 'Success' [Status], '' [Error], Company_Id, Center_Id, SysMeetingId, MeetingHostUserId, TimeZoneId FROM Live_Meetings L WITH (NOLOCK) WHERE L.MeetingId = @MeetingId
 END
 GO

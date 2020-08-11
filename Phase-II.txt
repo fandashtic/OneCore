@@ -1,0 +1,24 @@
+Director:
+
+1. Leave Meeting by Host, how to handle the status.
+2. Alternate Host Assignment and status update of original and current host.
+3. When update the meeting expiry and participants status?
+4. Actual meeting participants
+5. Host, alternate host meeting actual start and end
+6. Actual meeting participants details from API and actual start and end from API
+7. Meeting type restrictions
+8. Meeting Other options, like notifications to host / participants
+9. Reschudule meeting with other host / change time after expair meeting
+
+Family:
+
+1. Meeting Expiry (Not Attend Status)
+2. Option to re-join meeting
+3. meeting expiry and participants status?
+
+
+Staff:
+
+1. When Reject meeting by staff, is it re-assign to center / location director.
+2. Meeting expired status
+ 

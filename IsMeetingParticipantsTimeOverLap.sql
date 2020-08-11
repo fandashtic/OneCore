@@ -20,6 +20,7 @@ BEGIN
 	DECLARE @ChildId INT;
 	DECLARE @Id INT;
 	DECLARE @P_Id INT;
+	Declare @P_SysMeetingId INT = 0
 	SET @IsMeetingParticipantsTimeOverLap = 0;
 	SET @Id = 1;
 	SET @P_Id = 1;
@@ -47,6 +48,7 @@ BEGIN
 		SELECT DISTINCT SysMeetingId FROM Live_Meeting_Participants L WITH (NOLOCK) 
 		WHERE L.MeetingParticipantUserId = @ParentId AND L.Family_Id = @FamilyId AND L.Child_Id = @ChildId  AND MeetingParticipantStatus In(1, 2)
 		AND Company_Id = @Company_Id AND Center_Id = @Center_Id
+		AND SysMeetingId <> @SysMeetingId
 
 		DELETE @TempParticipant_Meetings WHERE SysMeetingId IN(SELECT DISTINCT SysMeetingId FROM Live_Meetings WITH (NOLOCK) WHERE MeetingStatus > 2)
 
@@ -55,26 +57,29 @@ BEGIN
 		WHILE(@P_Id <= (SELECT MAX(P_Id) FROM @TempParticipant_Meetings))
 		BEGIN
 
-			SELECT @SysMeetingId = SysMeetingId FROM @TempParticipant_Meetings WHERE P_Id = @P_Id;
+			SELECT @P_SysMeetingId = SysMeetingId FROM @TempParticipant_Meetings WHERE P_Id = @P_Id;
 
-			IF EXISTS (SELECT TOP 1 1 
-						FROM Live_Meetings L WITH (NOLOCK) 
-						WHERE L.MeetingStatus <= 2 AND
-						@MeetingStartTime BETWEEN L.MeetingStartTime AND L.MeetingEndTime 
-						AND SysMeetingId <> @SysMeetingId AND Company_Id = @Company_Id AND Center_Id = @Center_Id)
+			IF(@P_SysMeetingId > 0)
 			BEGIN
-				SET @IsMeetingParticipantsTimeOverLap = 1;
-				BREAK; 
-			END
+				IF EXISTS (SELECT TOP 1 1 
+							FROM Live_Meetings L WITH (NOLOCK) 
+							WHERE L.MeetingStatus <= 2 AND
+							@MeetingStartTime BETWEEN L.MeetingStartTime AND L.MeetingEndTime 
+							AND SysMeetingId = @P_SysMeetingId AND Company_Id = @Company_Id AND Center_Id = @Center_Id)
+				BEGIN
+					SET @IsMeetingParticipantsTimeOverLap = 1;
+					BREAK; 
+				END
 
-			IF EXISTS (SELECT TOP 1 1 
-						FROM Live_Meetings L WITH (NOLOCK) 
-						WHERE L.MeetingStatus <= 2 AND
-						@MeetingEndTime BETWEEN L.MeetingStartTime AND L.MeetingEndTime 
-						AND SysMeetingId <> @SysMeetingId AND Company_Id = @Company_Id AND Center_Id = @Center_Id)						
-			BEGIN
-				SET @IsMeetingParticipantsTimeOverLap = 1;
-				BREAK; 
+				IF EXISTS (SELECT TOP 1 1 
+							FROM Live_Meetings L WITH (NOLOCK) 
+							WHERE L.MeetingStatus <= 2 AND
+							@MeetingEndTime BETWEEN L.MeetingStartTime AND L.MeetingEndTime 
+							AND SysMeetingId = @P_SysMeetingId AND Company_Id = @Company_Id AND Center_Id = @Center_Id)						
+				BEGIN
+					SET @IsMeetingParticipantsTimeOverLap = 1;
+					BREAK; 
+				END
 			END
 
 			SET @P_Id = @P_Id + 1;

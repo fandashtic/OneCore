@@ -28,14 +28,21 @@ BEGIN
 		BEGIN
 			UPDATE D 
 			SET D.MeetingParticipantStatus = @MeetingStatus,
-				--D.ActualMeetingStartTime = ISNULL(D.ActualMeetingStartTime, @ActualMeetingStartTime),
+				D.ActualMeetingStartTime = ISNULL(D.ActualMeetingStartTime, @ActualMeetingStartTime),
 				D.ActualMeetingEndTime = ISNULL(D.ActualMeetingEndTime, @ActualMeetingEndTime),
 				D.ModifiedBy = @UserId,
 				D.ModifiedDttm = @TransactionDttm
 			FROM Live_Meeting_Participants D WITH (NOLOCK) 
 			WHERE D.SysMeetingId = @SysMeetingId
-			AND D.ActualMeetingStartTime IS NOT NULL
 			AND D.MeetingParticipantStatus = 2
+
+			UPDATE D 
+			SET D.MeetingParticipantStatus = 6, -- Not Attended Meetings are updated as Expired
+				D.ModifiedBy = @UserId,
+				D.ModifiedDttm = @TransactionDttm
+			FROM Live_Meeting_Participants D WITH (NOLOCK) 
+			WHERE D.SysMeetingId = @SysMeetingId
+			AND D.MeetingParticipantStatus = 1
 		END
 		ELSE
 		BEGIN

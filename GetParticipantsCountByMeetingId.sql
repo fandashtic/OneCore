@@ -21,7 +21,7 @@ BEGIN
 	SELECT DISTINCT CAST(Family_Id AS VARCHAR) + CAST(Child_Id AS VARCHAR) + CAST(MeetingParticipantUserId AS VARCHAR)
 	FROM Live_Meeting_Participants D WITH (NOLOCK) 
 	WHERE D.SysMeetingId = @SysMeetingId
-	AND D.MeetingParticipantStatus <= 3
+	AND D.MeetingParticipantStatus NOT IN (4) -- TODO: Except Deleted Participants.
 
 	IF EXISTS (SELECT TOP 1 1 FROM Live_Meeting_Participants D WITH (NOLOCK) WHERE D.SysMeetingId = @SysMeetingId)
 	BEGIN

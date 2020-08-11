@@ -22,7 +22,6 @@ Create PROC Update_Participants
 AS
 BEGIN
 	
-	DECLARE @IsMeetingHostUserTimeOverLap BIT;
 	DECLARE @IsMeetingParticipantsTimeOverLap BIT;
 	DECLARE @Error VARCHAR(255);
 	DECLARE	@Company_Id INT
@@ -30,7 +29,6 @@ BEGIN
 	DECLARE @MeetingStartTime DATETIME
 	DECLARE @MeetingEndTime DATETIME
 
-	SET @IsMeetingHostUserTimeOverLap = 0;
 	SET @IsMeetingParticipantsTimeOverLap = 0;
 	SET @Error = '';
 
@@ -39,7 +37,7 @@ BEGIN
 	-- Is any meeting participants time Overlap
 	SET @IsMeetingParticipantsTimeOverLap = dbo.IsMeetingParticipantsTimeOverLap(@Company_Id,@Center_Id, @ParentIds, @FamilyIds, @ChildIds, @MeetingStartTime, @MeetingEndTime, @SysMeetingId)
 	
-	IF(@IsMeetingHostUserTimeOverLap = 0 AND @IsMeetingParticipantsTimeOverLap = 0)
+	IF(@IsMeetingParticipantsTimeOverLap = 0)
 	BEGIN
 		--Delete All Existing Participants for the meeting id.
 		DELETE D FROM Live_Meeting_Participants D WITH (NOLOCK) WHERE D.SysMeetingId = @SysMeetingId
@@ -86,8 +84,7 @@ BEGIN
 	END
 	ELSE
 	BEGIN
-		IF(@IsMeetingHostUserTimeOverLap = 1) SET @Error = @Error + (CASE WHEN dbo.IsHasValue(@Error) = 1 THEN ' ,' ELSE '' END) + 'Meeting Host User Time Overlap';
-		IF(@IsMeetingParticipantsTimeOverLap = 1) SET @Error = @Error + (CASE WHEN dbo.IsHasValue(@Error) = 1 THEN ' ,' ELSE '' END) + 'Meeting Participants Time Overlap';
+		IF(@IsMeetingParticipantsTimeOverLap = 1) SET @Error = 'Meeting Participants Time Overlap';
 	END
 
 	SELECT @SysMeetingId [SysMeetingId], @Error [Error];

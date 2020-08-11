@@ -4,13 +4,13 @@
 -- Description: Create new stored procedure for add Job and process.
 -- Return App Job Id
 -- ==============================================================================================
---Exec CreateAppJob_AppProcess 'LiveMeetingEndProcess', 'C:\OCO_TEST\OCOJOBS\LiveMeetingJob\LiveMeetingJob.exe'
+--Exec CreateAppJob_AppProcess 'LiveMeetingEndProcess', 'C:\OCO_TEST\OCOJOBS\LiveMeetingJob\LiveMeetingJob.exe', 1, 'Hourly', 30
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'CreateAppJob_AppProcess')
 BEGIN
     DROP PROC CreateAppJob_AppProcess
 END
 GO
-CREATE PROC CreateAppJob_AppProcess (@app_proc_nm VARCHAR(50), @ExePath VARCHAR(1000) = '')
+CREATE PROC CreateAppJob_AppProcess (@app_proc_nm VARCHAR(50), @ExePath VARCHAR(1000) = '', @category_id INT = 1, @app_job_freq Varchar(100) = 'Hourly', @app_job_time_interval INT = 30)
 AS  
 BEGIN
 	DECLARE @app_proc_id INT
@@ -18,13 +18,13 @@ BEGIN
 	IF NOT EXISTS (SELECT TOP 1 1 FROM app_process WITH (NOLOCK) WHERE app_proc_nm = @app_proc_nm)
 	BEGIN
 		INSERT INTO app_process(app_proc_nm, app_proc_ver, is_proc_active, created_dttm, updated_dttm, app_proc_exec_nm, category_id)
-		SELECT @app_proc_nm , 1 ,1, GETDATE() , GETDATE() , @ExePath, 2
+		SELECT @app_proc_nm , 1 ,1, GETDATE() , GETDATE(),  @ExePath, @category_id
 
 		SET @app_proc_id = SCOPE_IDENTITY();
 
 		INSERT INTO app_job (app_proc_id, app_job_status_id, app_job_start_dttm, app_job_end_dttm, 
 		app_job_freq, app_job_last_exec_dttm, app_job_time_interval, created_dttm,updated_dttm)
-		SELECT @app_proc_id , 1 ,GETDATE() ,'9999-12-31 00:00:00.000' ,'Hourly' , GETDATE() , 1 ,GETDATE() , GETDATE()	
+		SELECT @app_proc_id , 1 ,GETDATE() ,'9999-12-31 00:00:00.000' ,@app_job_freq , GETDATE(), @app_job_time_interval ,GETDATE(), GETDATE()	
 
 		SELECT SCOPE_IDENTITY();
 	END

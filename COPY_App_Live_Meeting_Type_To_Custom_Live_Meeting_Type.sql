@@ -21,69 +21,76 @@ BEGIN
 	IF(@Company_Id > 0)
 	BEGIN
 
-		IF(@Center_Id > 0)
-		BEGIN
-			Delete C From Live_Meeting_Type C WITH (NOLOCK) WHERE Company_Id = @Company_Id AND Center_Id = @Center_Id AND MeetingTypeName IN (SELECT DISTINCT MeetingTypeName FROM App_Live_Meeting_Type WITH (NOLOCK) WHERE MeetingTypeStatus = 1)
-		END
-		ELSE
-		BEGIN
-			Delete C From Live_Meeting_Type C WITH (NOLOCK) WHERE Company_Id = @Company_Id AND MeetingTypeName IN (SELECT DISTINCT MeetingTypeName FROM App_Live_Meeting_Type WITH (NOLOCK) WHERE MeetingTypeStatus = 1)
-		END
+		SET @Center_Id = 0
 
-		INSERT INTO Live_Meeting_Type
-			(
-				MeetingTypeName,
-				Company_Id,
-				Center_Id,
-				MaxParticipants,
-				GraceTime,
-				CallDuration,
-				IsShowHostVideo,
-				IsShowParticipantsVideo,
-				IsMuteParticipant,
-				IsViewOtherParticipants,
-				IsJoinbeforeHost,
-				IsChat,
-				IsPrivateChat,
-				IsFileTransfer,
-				IsScreenSharingByHost,
-				IsScreenSharingByParticipants,
-				IsWhiteboard,
-				MeetingTypeStatus,
-				CreatedBy,
-				CreatedDttm,
-				IsSendReminderHost,
-				IsSendReminderParticipants,
-				IsRecordSession,
-				AppLiveMeetingId
-			)
-			SELECT 
-				MeetingTypeName,
-				@Company_Id,
-				@Center_Id,
-				MaxParticipants,
-				GraceTime,
-				CallDuration,
-				IsShowHostVideo,
-				IsShowParticipantsVideo,
-				IsMuteParticipant,
-				IsViewOtherParticipants,
-				IsJoinbeforeHost,
-				IsChat,
-				IsPrivateChat,
-				IsFileTransfer,
-				IsScreenSharingByHost,
-				IsScreenSharingByParticipants,
-				IsWhiteboard,
-				MeetingTypeStatus,
-				@UserId,
-				@TransactionDttm,
-				IsSendReminderHost,
-				IsSendReminderParticipants,
-				IsRecordSession,
-				SysMeetingTypeId
-		FROM App_Live_Meeting_Type L WITH (NOLOCK)
-		WHERE L.MeetingTypeStatus = 1
+		--IF(@Center_Id > 0)
+		--BEGIN
+		--	Delete C From Live_Meeting_Type C WITH (NOLOCK) WHERE Company_Id = @Company_Id AND Center_Id = @Center_Id AND MeetingTypeName IN (SELECT DISTINCT MeetingTypeName FROM App_Live_Meeting_Type WITH (NOLOCK) WHERE MeetingTypeStatus = 1)
+		--END
+		--ELSE
+		--BEGIN
+		--	Delete C From Live_Meeting_Type C WITH (NOLOCK) WHERE Company_Id = @Company_Id AND MeetingTypeName IN (SELECT DISTINCT MeetingTypeName FROM App_Live_Meeting_Type WITH (NOLOCK) WHERE MeetingTypeStatus = 1)
+		--END
+
+		IF NOT EXISTS (SELECT TOP 1 1 FROM Live_Meeting_Type C WITH (NOLOCK) WHERE Company_Id = @Company_Id)
+		BEGIN
+			INSERT INTO Live_Meeting_Type
+				(
+					MeetingTypeName,
+					Company_Id,
+					Center_Id,
+					MaxParticipants,
+					GraceTime,
+					CallDuration,
+					IsShowHostVideo,
+					IsShowParticipantsVideo,
+					IsMuteParticipant,
+					IsViewOtherParticipants,
+					IsJoinbeforeHost,
+					IsChat,
+					IsPrivateChat,
+					IsFileTransfer,
+					IsScreenSharingByHost,
+					IsScreenSharingByParticipants,
+					IsWhiteboard,
+					MeetingTypeStatus,
+					CreatedBy,
+					CreatedDttm,
+					IsSendReminderHost,
+					IsSendReminderParticipants,
+					IsRecordSession,
+					AppLiveMeetingId,
+					MeetingEndBufferTime
+				)
+				SELECT 
+					MeetingTypeName,
+					@Company_Id,
+					@Center_Id,
+					MaxParticipants,
+					GraceTime,
+					CallDuration,
+					IsShowHostVideo,
+					IsShowParticipantsVideo,
+					IsMuteParticipant,
+					IsViewOtherParticipants,
+					IsJoinbeforeHost,
+					IsChat,
+					IsPrivateChat,
+					IsFileTransfer,
+					IsScreenSharingByHost,
+					IsScreenSharingByParticipants,
+					IsWhiteboard,
+					MeetingTypeStatus,
+					@UserId,
+					@TransactionDttm,
+					IsSendReminderHost,
+					IsSendReminderParticipants,
+					IsRecordSession,
+					SysMeetingTypeId,
+					MeetingEndBufferTime
+			FROM App_Live_Meeting_Type L WITH (NOLOCK)
+			WHERE L.MeetingTypeStatus = 1
+		END
 	END
 END
 GO

@@ -46,14 +46,23 @@ Create PROC Save_Meeting_Recordings
 )  
 AS  
 BEGIN 
+
+	DECLARE	@Company_Id AS INT
+	DECLARE	@Center_Id AS INT
+		
 	IF(@Index = 0)
 	BEGIN
-		DELETE Live_Meeting_Recordings WHERE @SysMeetingId = @SysMeetingId
+		DELETE Live_Meeting_Recordings WHERE SysMeetingId = @SysMeetingId
+		UPDATE Live_Meetings SET IsRecordSession = 1 WHERE SysMeetingId = @SysMeetingId
 	END
+
+	SELECT @Company_Id = Company_Id, @Center_Id = Center_Id FROM Live_Meetings L WITH (NOLOCK) WHERE SysMeetingId = @SysMeetingId
 
 	INSERT Live_Meeting_Recordings 
 	(
 		SysMeetingId,
+		Company_Id,
+		Center_Id,
 		Account_Id,
 		Duration,
 		Meeting_Host_Id,
@@ -82,6 +91,8 @@ BEGIN
 
 	SELECT 
 		@SysMeetingId,
+		@Company_Id,
+		@Center_Id,
 		@Account_Id,
 		@Duration,
 		@Meeting_Host_Id,
